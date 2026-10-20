@@ -279,8 +279,8 @@
     },
     {
       "path": "tiles/56.png",
-      "depicts": "Shovey",
-      "sha256": "a89ff2f477d123722dfffb967629b01c4af4097b0988958907cc13caf144a994"
+      "depicts": "Shovey looking up, the same player as Classic",
+      "sha256": "f8c4574ec7c31a196ff6d681ab512344ca1ba19cb229bc60af9d789f11e7f815"
     },
     {
       "path": "tiles/57.png",
@@ -619,28 +619,29 @@
     },
     {
       "path": "player/1.png",
-      "depicts": "Shovey looking up",
-      "sha256": "5f875fabff87d044da9e3cced08be42f1620b54d2cdc43dcd17139654a83e38a"
+      "depicts": "Shovey looking up, the same player as Classic",
+      "sha256": "f8c4574ec7c31a196ff6d681ab512344ca1ba19cb229bc60af9d789f11e7f815"
     },
     {
       "path": "player/2.png",
-      "depicts": "Shovey looking right",
-      "sha256": "ab8e75adcefc775481535836570925f99d801edb1bbd27abbe913c40ee71c38c"
+      "depicts": "Shovey looking right, the same player as Classic",
+      "sha256": "e5f534b8bbc8defb8e3a160cd145a5ecbad0742eca709b52a9f4b65f03d53173"
     },
     {
       "path": "player/3.png",
-      "depicts": "Shovey looking down",
-      "sha256": "fc916527eba02869fd37c993096e8a03e21941d044012861d49eb2f50d051369"
+      "depicts": "Shovey looking down, the same player as Classic",
+      "sha256": "ce5a15c1dedc4826dc30eb837bac7ec49d38735adde157d686cfc49061f371ff"
     },
     {
       "path": "player/4.png",
-      "depicts": "Shovey looking left",
-      "sha256": "4bb9caef6eb5adf960c271a9cbbc159fa9c51bfcec4f603480b3d6b721b331f0"
+      "depicts": "Shovey looking left, the same player as Classic",
+      "sha256": "f38ea9d30a789de00d239347ed80859d59da224231d17136cb28a89eb55fae17"
     },
     {
       "path": "preview.png",
       "depicts": "Shovey Island card: Shovey beside a round hut on a small island",
-      "sha256": "3fa663020375623f7c863d49d335354175fe22afffddaf9a7a01a376df2a5d84"
+      "sha256": "63a16e4e8ca3c4c49466c623906321bab9e52275839aefd72039a0d2e2a86694"
     }
-  ]
+  ],
+  "player_source": "Classic player sprites, copied unchanged by tools/pixel/share_player.py"
 }

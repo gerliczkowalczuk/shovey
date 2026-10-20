@@ -4,23 +4,23 @@
   "files": [
     {
       "path": "player/1.png",
-      "depicts": "landscape presentation of Shovey looking up",
-      "sha256": "4bb9caef6eb5adf960c271a9cbbc159fa9c51bfcec4f603480b3d6b721b331f0"
+      "depicts": "landscape presentation of Shovey looking up, the same player as Classic",
+      "sha256": "f38ea9d30a789de00d239347ed80859d59da224231d17136cb28a89eb55fae17"
     },
     {
       "path": "player/2.png",
-      "depicts": "landscape presentation of Shovey looking right",
-      "sha256": "5f875fabff87d044da9e3cced08be42f1620b54d2cdc43dcd17139654a83e38a"
+      "depicts": "landscape presentation of Shovey looking right, the same player as Classic",
+      "sha256": "f8c4574ec7c31a196ff6d681ab512344ca1ba19cb229bc60af9d789f11e7f815"
     },
     {
       "path": "player/3.png",
-      "depicts": "landscape presentation of Shovey looking down",
-      "sha256": "ab8e75adcefc775481535836570925f99d801edb1bbd27abbe913c40ee71c38c"
+      "depicts": "landscape presentation of Shovey looking down, the same player as Classic",
+      "sha256": "e5f534b8bbc8defb8e3a160cd145a5ecbad0742eca709b52a9f4b65f03d53173"
     },
     {
       "path": "player/4.png",
-      "depicts": "landscape presentation of Shovey looking left",
-      "sha256": "fc916527eba02869fd37c993096e8a03e21941d044012861d49eb2f50d051369"
+      "depicts": "landscape presentation of Shovey looking left, the same player as Classic",
+      "sha256": "ce5a15c1dedc4826dc30eb837bac7ec49d38735adde157d686cfc49061f371ff"
     },
     {
       "path": "tiles/0.png",
@@ -404,8 +404,8 @@
     },
     {
       "path": "tiles/56.png",
-      "depicts": "landscape presentation of Shovey",
-      "sha256": "a89ff2f477d123722dfffb967629b01c4af4097b0988958907cc13caf144a994"
+      "depicts": "landscape presentation of Shovey looking up, the same player as Classic",
+      "sha256": "f8c4574ec7c31a196ff6d681ab512344ca1ba19cb229bc60af9d789f11e7f815"
     },
     {
       "path": "tiles/57.png",

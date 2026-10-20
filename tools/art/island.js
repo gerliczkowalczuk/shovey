@@ -3,7 +3,7 @@
 // above; their shorelines sit at fixed insets so any neighbours join.
 import { THREE, C, mat, box, sphere, cylinder, torus, lathe, slab, polygon, circleShape,
     roundedRectShape, starShape, group, at, turned, scaled, periodicNoise, blend, rng } from './kit.js';
-import { shovey } from './shovey.js';
+import { classicPlayer as shovey } from './shovey.js';
 
 // ---------------------------------------------------------------- terrain
 

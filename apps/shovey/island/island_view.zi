@@ -248,7 +248,7 @@ IslandFrame :: (language: string) {
     width := cast(float32)island_frame.width
     top := cast(float32)island_frame.top
     bottom := cast(float32)(island_frame.height - island_frame.bottom)
-    ShoveyDress(island_frame.session, width, top, cast(float32)island_frame.height)
+    ShoveyDress(island_frame.session, width, top, bottom)
 
     if island_selector { IslandLevels(width, top, bottom); return }
     key := AppKeyHost()
