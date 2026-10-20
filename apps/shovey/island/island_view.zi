@@ -86,9 +86,13 @@ IslandCaption :: (key: u64, bounds: Rectangle, text: string, font: s32 = 16, cen
             .vertical_align = TextAlign.TextAlignCenter})
 }
 
-IslandControl :: (id: s32, bounds: Rectangle, label: string, disabled: bool = false, detail: string = "") -> bool {
+// A button; with an icon it shows only the icon and keeps label for
+// screen readers and tooltips.
+IslandControl :: (id: s32, bounds: Rectangle, label: string, disabled: bool = false, detail: string = "",
+    icon: string = "") -> bool {
     return Button(island_frame.session, ButtonProps.{.key = cast(u64)id, .id = id, .bounds = bounds,
             .label = label, .detail = detail, .disabled = disabled, .fit_content = true,
+            .icon_shape = icon, .icon_only = icon != "",
             .emphasis = ButtonEmphasis.ButtonEmphasisSoft}) != 0
 }
 
@@ -247,10 +251,20 @@ IslandFrame :: (language: string) {
     if key == 72 { island_help = !island_help }
     if key == 256 { island_help = false }
     // A compact bar: the island takes the rest of the screen.
-    if IslandControl(80005, Rectangle.{8.0, top + 6.0, 88.0, 40.0}, IslandText("island_levels")) { island_selector = true; return }
-    IslandCaption(80004, Rectangle.{104.0, top + 6.0, width - 312.0, 40.0}, IslandHeading(), 18, true)
-    if IslandControl(80015, Rectangle.{width - 200.0, top + 6.0, 96.0, 40.0}, IslandText("island_restart")) { IslandOpenLevel(island_game.level) }
-    if IslandControl(80006, Rectangle.{width - 100.0, top + 6.0, 92.0, 40.0}, IslandText("island_help")) { island_help = !island_help }
+    // A compact bar of three icons, so the level's name keeps the width it
+    // needs on a phone.
+    if IslandControl(80005, Rectangle.{8.0, top + 4.0, 44.0, 44.0}, IslandText("island_levels"), false, "", ICON_LEVELS) {
+        island_selector = true
+        return
+    }
+    IslandCaption(80004, Rectangle.{60.0, top + 4.0, width - 172.0, 44.0}, IslandHeading(), 18, true)
+    if IslandControl(80015, Rectangle.{width - 104.0, top + 4.0, 44.0, 44.0}, IslandText("island_restart"), false, "", ICON_RESTART) {
+        IslandOpenLevel(island_game.level)
+    }
+    if IslandControl(80006, Rectangle.{width - 52.0, top + 4.0, 44.0, 44.0}, IslandText("island_help"), false, "",
+            ifx island_help then ICON_CLOSE else ICON_HELP) {
+        island_help = !island_help
+    }
     if island_help {
         scroll := Scroll(island_frame.session, ScrollProps.{.key = cast(u64)80008,
                 .bounds = Rectangle.{16.0, top + 56.0, width - 32.0, bottom - top - 64.0},
@@ -280,7 +294,6 @@ IslandFrame :: (language: string) {
     area := Rectangle.{8.0, status_y + 52.0, width - 16.0, bottom - status_y - 60.0}
     IslandNames()
     grid := IslandBoard(island_frame.session, *island_game, area, cast(u64)85000, island_names[:])
-    board := grid.board
     status := IslandLevelName(island_game.level)
     status_icon := ""
     if island_game.won {
@@ -301,8 +314,10 @@ IslandFrame :: (language: string) {
     IslandInventory(Rectangle.{16.0, status_y + 24.0, width - 32.0, 24.0})
     if island_save_failed { IslandCaption(80016, Rectangle.{16.0, bottom - 28.0, width - 32.0, 24.0}, IslandText("island_save_failed"), 13, true) }
     disabled := island_game.won
-    // Touch: swipe on the island to step, or tap a cell to step towards it.
-    gesture := SwipeArea(island_frame.session, SwipeAreaProps.{.key = cast(u64)89000, .id = 89000, .bounds = board,
+    // Touch: swipe anywhere under the bar to step, or tap a cell to step
+    // towards it. The stick comes after, so it stays on top.
+    play := Rectangle.{0.0, top + 52.0, width, bottom - top - 52.0}
+    gesture := SwipeArea(island_frame.session, SwipeAreaProps.{.key = cast(u64)89000, .id = 89000, .bounds = play,
             .label = IslandText("island_controls"), .now = island_frame.now, .min_distance = grid.cell * 0.6, .disabled = disabled})
     joystick_allowed := ControlsJoystickAllowed()
     if !joystick_allowed || ControlsSetting() == CONTROLS_OFF { island_joystick_hidden = true }

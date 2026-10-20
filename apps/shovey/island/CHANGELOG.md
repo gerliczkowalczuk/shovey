@@ -1,5 +1,10 @@
 # Shovey Island changelog
 
+## [0.4.1] - 2026-10-20
+
+- Swipe anywhere on the game screen to move, not only on the board.
+- The top bar shows Levels, Restart and Help as icons, so the level's name fits.
+
 ## [0.4.0] - 2026-10-19
 
 - Shovey Island now appears beside Shovey Classic and Shovey Editor as a Coming Soon edition.
