@@ -1,0 +1,144 @@
+[island_restart]
+Neu starten
+---
+[island_help]
+Hilfe
+---
+[island_continue]
+Fortsetzen
+---
+[island_up]
+Hoch
+---
+[island_down]
+Runter
+---
+[island_left]
+Links
+---
+[island_right]
+Rechts
+---
+[island_save_failed]
+Speichern fehlgeschlagen. Versuche einen weiteren Zug.
+---
+[island_home]
+Haus
+---
+[island_crate]
+Kiste
+---
+[island_key]
+Schlüssel
+---
+[island_ammo]
+Wurfkugel
+---
+[island_portal]
+Teleporter
+---
+[island_locked]
+Gesperrt
+---
+[island_completed]
+Geschafft
+---
+[island_available]
+Verfügbar
+---
+[island_level]
+Insel
+---
+[island_levels]
+Inseln
+---
+[island_seed]
+Samen
+---
+[island_crab]
+Krabbe
+---
+[island_pearl]
+Perle
+---
+[island_coin]
+Münze
+---
+[island_coconut]
+Kokosnuss
+---
+[island_string]
+Schnur
+---
+[island_object]
+Gegenstand
+---
+[island_terrain]
+Untergrund
+---
+[island_controls]
+Pfeiltasten / WASD · R Neustart · H Hilfe
+---
+[island_ready]
+Alle Aufgaben erfüllt. Gehe von unten ins Haus.
+---
+[island_finale]
+Alle Inseln geschafft!
+---
+[island_help_1]
+Bewege dich mit Pfeiltasten, WASD, Richtungstasten oder einem benachbarten Feld.
+---
+[island_help_2]
+Vom Gras kannst du hinunterspringen, aber nicht hinaufsteigen. Schiebe Gegenstände um
+---
+[island_help_3]
+ein Feld; gleichfarbige Statuen bewegen sich gemeinsam. Stelle Statuen, Fässer und
+---
+[island_help_4]
+Blumen auf die passenden Ziele. Versenkte Kisten bauen Brücken, Seesterne verschwinden
+---
+[island_help_5]
+im Wasser. Sammle Schlüssel für Truhen, bringe kleine Krabben von unten
+---
+[island_help_6]
+zur Mutter und nähere dich dem Piraten von links. Perlen füllen
+---
+[island_help_7]
+Türme. Pflanze Samen, fülle eine Flasche am Brunnen und gieße das
+---
+[island_help_8]
+bepflanzte Beet. Sprungfedern lassen dich springen, Flöße gleiten über freies Wasser
+---
+[island_help_9]
+und Eis bricht unter Shovey. Platten ziehen Spitzen ein oder zeigen
+---
+[island_help_10]
+Wege. Rolle Kokosnüsse in Löcher oder auf markierte Ziele. Mit Munition
+---
+[island_help_11]
+kannst du die Schleuder von unten bedienen; Blätter lenken den Schuss
+---
+[island_help_12]
+um. Schiebe Zahlensteine in Reihenfolge und ändere alle Stimmungsmuscheln auf Gelb.
+---
+[island_help_13]
+Verbinde Schnurmarkierungen, um die Blumenfarben entlang des Weges umzudrehen. Eine Krake
+---
+[island_help_14]
+folgt bis zum Brunnen und wartet, während du eine Schnur ziehst.
+---
+[island_help_15]
+Erfülle die Ziele und gehe von unten ins Haus. Danach startet
+---
+[island_help_16]
+automatisch die nächste Insel. Eine ausgewählte freigeschaltete Insel beginnt immer neu.
+---
+
+[island_coming_title]
+Demnächst
+
+[island_coming_body]
+Shovey Island wird noch verfeinert. Es kehrt zurück, wenn jede Insel perfekt ist.
+
+[island_coming_button]
+Demnächst

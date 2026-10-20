@@ -1,0 +1,237 @@
+// C boundary for the Island solver (tools/solver/solver.c). Every rule runs in
+// the shipped engine; this module only loads boards and converts the
+// behavior-relevant part of an IslandGame to and from a fixed byte vector.
+//
+// Every Island action is an arrow press: trades, slingshots, leaf changers,
+// strings, rafts and springs all start from IslandMove.
+//
+// Solver state vector, ISLAND_STATE_SIZE bytes:
+//   0..239    terrain
+//   240..479  objects
+//   480..719  string path; entries past path_count are never read and are 0
+//   720       player
+//   721..731  keys, seeds, crabs, crabs_due, pearls, ammunition, coins,
+//             coins_due, towers_due, number_count, path_count
+//   732       1 while a string is active, plus 2 when won
+// Level and the spike, plate and water-switch cells are fixed by the board.
+// Facing direction and the move counter are cosmetic and stay out.
+#import, file "../../apps/shovey/island/island_engine.zi";
+
+ISLAND_STATE_SIZE :: 733
+ISLAND_COUNTERS :: 721
+
+island_hex: [ISLAND_CELLS * 4]u8;
+// The loaded board supplies the constant fields of every decoded state.
+island_initial: IslandGame;
+island_base: IslandGame;
+island_game: IslandGame;
+// An octopus follows every step, so no step is plain while one is on the board.
+island_octopus: bool;
+
+#program_export
+IslandApiStateSize :: () -> s32 { return ISLAND_STATE_SIZE }
+
+// Loads a NUL-terminated hex board. Returns 1 when the engine accepts it.
+#program_export
+IslandApiLoad :: (hex: *u8, level: s32) -> s32 {
+    count: s32 = 0
+    while hex[count] != cast(u8)0 {
+        if count >= ISLAND_CELLS * 4 { return 0 }
+        island_hex[count] = hex[count]
+        count += 1
+    }
+    if !IslandLoadData(*island_initial, level, TextView(island_hex[0:count])) { return 0 }
+    island_base = island_initial
+    island_game = island_initial
+    return 1
+}
+
+// Writes the current game's state vector. Returns 0 when a value does not
+// fit its byte, which the solver treats as a fatal encoding error.
+#program_export
+IslandApiEncode :: (out: *u8) -> s32 {
+    game := *island_game
+    if game.path_count < 0 || game.path_count > ISLAND_CELLS { return 0 }
+    for at: cast(s32)0..ISLAND_CELLS - 1 {
+        terrain := game.terrain[at]
+        object := game.objects[at]
+        point: s32 = ifx at < game.path_count then game.path[at] else 0
+        if terrain < 0 || terrain > 255 || object < 0 || object > 255 || point < 0 || point > 255 { return 0 }
+        out[at] = cast(u8)terrain
+        out[ISLAND_CELLS + at] = cast(u8)object
+        out[ISLAND_CELLS * 2 + at] = cast(u8)point
+    }
+    counters: [11]s32 = .[game.keys, game.seeds, game.crabs, game.crabs_due, game.pearls,
+    game.ammunition, game.coins, game.coins_due, game.towers_due, game.number_count, game.path_count]
+    if game.player < 0 || game.player >= ISLAND_CELLS { return 0 }
+    out[720] = cast(u8)game.player
+    for index: cast(s32)0..10 {
+        if counters[index] < 0 || counters[index] > 255 { return 0 }
+        out[ISLAND_COUNTERS + index] = cast(u8)counters[index]
+    }
+    out[732] = cast(u8)((ifx game.string_active then 1 else 0) + (ifx game.won then 2 else 0))
+    return 1
+}
+
+// Replaces the base and current game with a decoded state vector.
+#program_export
+IslandApiDecode :: (data: *u8) {
+    island_base = island_initial
+    game := *island_base
+    for at: cast(s32)0..ISLAND_CELLS - 1 {
+        game.terrain[at] = cast(s32)data[at]
+        game.objects[at] = cast(s32)data[ISLAND_CELLS + at]
+        game.path[at] = cast(s32)data[ISLAND_CELLS * 2 + at]
+    }
+    game.player = cast(s32)data[720]
+    game.keys = cast(s32)data[ISLAND_COUNTERS]
+    game.seeds = cast(s32)data[ISLAND_COUNTERS + 1]
+    game.crabs = cast(s32)data[ISLAND_COUNTERS + 2]
+    game.crabs_due = cast(s32)data[ISLAND_COUNTERS + 3]
+    game.pearls = cast(s32)data[ISLAND_COUNTERS + 4]
+    game.ammunition = cast(s32)data[ISLAND_COUNTERS + 5]
+    game.coins = cast(s32)data[ISLAND_COUNTERS + 6]
+    game.coins_due = cast(s32)data[ISLAND_COUNTERS + 7]
+    game.towers_due = cast(s32)data[ISLAND_COUNTERS + 8]
+    game.number_count = cast(s32)data[ISLAND_COUNTERS + 9]
+    game.path_count = cast(s32)data[ISLAND_COUNTERS + 10]
+    game.string_active = (data[732] & cast(u8)1) != cast(u8)0
+    game.won = (data[732] & cast(u8)2) != cast(u8)0
+    island_octopus = false
+    for at: cast(s32)0..ISLAND_CELLS - 1 {
+        if game.objects[at] == 114 { island_octopus = true }
+    }
+    island_game = island_base
+}
+
+// Restores the current game to the last decoded (or loaded) base.
+#program_export
+IslandApiReset :: () { island_game = island_base }
+
+// Actions 0..3 press left, up, right, down. Returns 1 when accepted. The
+// solver relies on a rejected press changing nothing but cosmetic facing:
+// every false return of IslandStep comes before its first write.
+#program_export
+IslandApiAct :: (action: s32) -> s32 {
+    return ifx IslandMove(*island_game, action) then 1 else 0
+}
+
+#program_export
+IslandApiWon :: () -> s32 { return ifx island_game.won then 1 else 0 }
+
+// Island has no losing state.
+#program_export
+IslandApiLost :: () -> s32 { return 0 }
+
+#program_export
+IslandApiRemaining :: () -> s32 { return IslandRemaining(*island_game) }
+
+// Byte offset of Shovey's cell in the state vector; this engine keeps no
+// behavior-relevant facing. A move that changes no other byte is a free walk,
+// so the solver may treat every cell reached that way as one region.
+#program_export
+IslandApiPlayerByte :: () -> s32 { return 720 }
+
+#program_export
+IslandApiFacingByte :: () -> s32 { return -1 }
+
+#program_export
+IslandApiFacings :: () -> s32 { return 1 }
+
+// The current walker as the state vector encodes it: Shovey's cell.
+#program_export
+IslandApiWalker :: () -> s32 { return island_game.player }
+
+// Moves the base game's walker, as decoding the vector with it would.
+#program_export
+IslandApiSetWalker :: (walker: s32) { island_base.player = walker }
+
+// No dead-state rule yet: every state may still be solvable.
+#program_export
+IslandApiDead :: () -> s32 { return 0 }
+
+// Every Island action is a move from Shovey's cell.
+#program_export
+IslandApiWalkerFree :: (action: s32) -> s32 { return 0 }
+
+// Terrain that does something when Shovey stands on or leaves it: water and
+// rafts, the spike plate, farms, blast spots, portals, ice and the watch plate.
+IslandApiEventTerrain :: (terrain: s32) -> bool {
+    return terrain == 0 || terrain == 30 || terrain == 32 || terrain == 33 || terrain == 36 ||
+    terrain == 37 || terrain == 38 || terrain == 39 || terrain == 40 || terrain == 41
+}
+
+// The cell a move reaches when it only moves Shovey: an empty, eventless cell
+// beside an eventless one, no climb onto a meadow, no string being laid, no
+// octopus to follow and no spike underfoot. Every event IslandCursor runs
+// then leaves the state as it was. Returns -1 when the engine has to take it.
+#program_export
+IslandApiPlainStep :: (direction: s32) -> s32 {
+    game := *island_base
+    if island_octopus || game.string_active { return -1 }
+    at := IslandNeighbor(game.player, direction)
+    if at < 0 || game.objects[at] != 0 || at == game.spike || game.player == game.spike { return -1 }
+    if IslandApiEventTerrain(game.terrain[at]) || IslandApiEventTerrain(game.terrain[game.player]) { return -1 }
+    if !IslandRaised(game.terrain[game.player]) && IslandRaised(game.terrain[at]) { return -1 }
+    return at
+}
+
+IslandApiDistance :: (from: s32, to: s32) -> s32 {
+    dx := from % ISLAND_WIDTH - to % ISLAND_WIDTH; dy := from / ISLAND_WIDTH - to / ISLAND_WIDTH
+    return (ifx dx < 0 then -dx else dx) + (ifx dy < 0 then -dy else dy)
+}
+
+// Distance to the nearest listed cell other than from, or 0 for none.
+IslandApiNearest :: (from: s32, cells: []s32) -> s32 {
+    best: s32 = -1
+    for cell: cells {
+        if cell == from { continue }
+        distance := IslandApiDistance(from, cell)
+        if best < 0 || distance < best { best = distance }
+    }
+    return ifx best < 0 then 0 else best
+}
+
+// Finishing a goal must outweigh the longest walk home (at most 28 cells).
+ISLAND_GOAL :: 32
+
+// Search guidance only, never a rule: ISLAND_GOAL per unfinished goal of
+// IslandRemaining, the distance from each empty statue or barrel target to
+// the nearest free matching piece, 8 per pickup still on the board, then
+// Shovey's distance to the nearest open goal or, with none left, to the cell
+// below a home (home is entered moving up).
+#program_export
+IslandApiEstimate :: () -> s32 {
+    game := *island_game
+    pieces: [4][ISLAND_CELLS]s32; piece_count: [4]s32
+    targets: [ISLAND_CELLS]s32; target_count: s32 = 0
+    goals: [ISLAND_CELLS]s32; goal_count: s32 = 0
+    homes: [ISLAND_CELLS]s32; home_count: s32 = 0
+    remaining := IslandRemaining(game)
+    estimate := remaining * ISLAND_GOAL
+    for at: cast(s32)0..ISLAND_CELLS - 1 {
+        terrain := game.terrain[at]; object := game.objects[at]
+        // Kinds 0..2 are statues 61..63 for targets 26..28; 3 is barrel 116 for 25.
+        kind: s32 = -1
+        if object >= 61 && object <= 63 && terrain != object - 35 { kind = object - 61 }
+        if object == 116 && terrain != 25 { kind = 3 }
+        if kind >= 0 { pieces[kind][piece_count[kind]] = at; piece_count[kind] += 1 }
+        open := (terrain >= 26 && terrain <= 28 && object != terrain + 35) || (terrain == 25 && object != 116)
+        if open { targets[target_count] = at; target_count += 1 }
+        if open || (terrain == 47 && object != 111) || (terrain == 48 && object != 112) ||
+        object == 73 || object == 65 || (object >= 101 && object <= 105) ||
+        object == 97 || object == 98 || object == 114 || IslandPickup(object) {
+            goals[goal_count] = at; goal_count += 1
+        }
+        if IslandPickup(object) { estimate += 8 }
+        if object == 75 && at + ISLAND_WIDTH < ISLAND_CELLS { homes[home_count] = at + ISLAND_WIDTH; home_count += 1 }
+    }
+    for index: cast(s32)0..target_count - 1 {
+        at := targets[index]
+        kind: s32 = ifx game.terrain[at] == 25 then 3 else game.terrain[at] - 26
+        estimate += IslandApiNearest(at, pieces[kind][0:piece_count[kind]])
+    }
+    if goal_count > 0 { estimate += IslandApiNearest(game.player, goals[0:goal_count]) }
+    else { estimate += IslandApiNearest(game.player, homes[0:home_count]) }
+    return estimate
+}

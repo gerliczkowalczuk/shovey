@@ -1,0 +1,144 @@
+[island_restart]
+Recommencer
+---
+[island_help]
+Aide
+---
+[island_continue]
+Continuer
+---
+[island_up]
+Haut
+---
+[island_down]
+Bas
+---
+[island_left]
+Gauche
+---
+[island_right]
+Droite
+---
+[island_save_failed]
+Enregistrement impossible. Réessaie avec un autre coup.
+---
+[island_home]
+Maison
+---
+[island_crate]
+Caisse
+---
+[island_key]
+Clé
+---
+[island_ammo]
+Projectile
+---
+[island_portal]
+Téléporteur
+---
+[island_locked]
+Verrouillé
+---
+[island_completed]
+Terminé
+---
+[island_available]
+Disponible
+---
+[island_level]
+Île
+---
+[island_levels]
+Îles
+---
+[island_seed]
+Graine
+---
+[island_crab]
+Crabe
+---
+[island_pearl]
+Perle
+---
+[island_coin]
+Pièce
+---
+[island_coconut]
+Noix de coco
+---
+[island_string]
+Ficelle
+---
+[island_object]
+Objet
+---
+[island_terrain]
+Terrain
+---
+[island_controls]
+Flèches / WASD · R recommencer · H aide
+---
+[island_ready]
+Objectifs remplis. Entre dans la maison par le bas.
+---
+[island_finale]
+Toutes les îles sont terminées !
+---
+[island_help_1]
+Déplace-toi avec les flèches, WASD, les boutons de direction ou une case voisine.
+---
+[island_help_2]
+Tu peux descendre de l’herbe, mais pas y monter. Pousse les objets d’une
+---
+[island_help_3]
+case ; les statues de même couleur bougent ensemble. Place statues, tonneaux et
+---
+[island_help_4]
+fleurs sur leurs cibles. Les caisses coulées forment des ponts, les étoiles disparaissent
+---
+[island_help_5]
+dans l’eau. Ramasse des clés pour les coffres, rapporte les petits crabes à
+---
+[island_help_6]
+leur mère par le bas et approche le pirate par la gauche. Les perles
+---
+[island_help_7]
+remplissent les tours. Plante des graines, remplis une bouteille au puits et arrose
+---
+[island_help_8]
+le champ planté. Les ressorts font sauter, les radeaux traversent l’eau libre et
+---
+[island_help_9]
+la glace se brise sous Shovey. Les plaques rétractent les pointes ou révèlent
+---
+[island_help_10]
+les chemins. Fais rouler les noix de coco dans les trous ou sur
+---
+[island_help_11]
+leurs cibles. Avec des munitions, utilise le lance-pierre par le bas ; les feuilles
+---
+[island_help_12]
+dévient le tir. Pousse les pierres numérotées dans l’ordre et rends jaunes tous
+---
+[island_help_13]
+les coquillages colorés. Relie les repères de ficelle pour inverser les couleurs des
+---
+[island_help_14]
+fleurs sur le trajet. La pieuvre te suit jusqu’au puits et attend pendant
+---
+[island_help_15]
+le tracé d’une ficelle. Remplis les objectifs, puis entre dans la maison par
+---
+[island_help_16]
+le bas. Gagner lance automatiquement l’île suivante. Choisir une île débloquée la recommence toujours.
+---
+
+[island_coming_title]
+Bientôt disponible
+
+[island_coming_body]
+Shovey Island est encore en cours de finition. Il reviendra quand chaque île sera parfait.
+
+[island_coming_button]
+Bientôt disponible

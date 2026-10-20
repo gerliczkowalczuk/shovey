@@ -1,0 +1,93 @@
+#import, file "../apps/shovey/island/island_engine.zi";
+#import, file "../apps/shovey/island/progress.zi";
+#import, file "../apps/shovey/island_levels.zi";
+
+OpenChecks :: () -> s32 {
+    progress := IslandProgressNew()
+    game: IslandGame
+    if !IslandLoad(*game, 1) { return 10 }
+    if IslandOpenLatest(*progress, *game) || game.level != 1 { return 11 }
+    game.won = true
+    if !IslandOpenLatest(*progress, *game) || game.level != 2 || game.won || progress.unlocked != 2 || !progress.completed[0] { return 12 }
+    if !IslandSelectLevel(*progress, *game, 1) || game.level != 1 { return 13 }
+    if !IslandOpenLatest(*progress, *game) || game.level != 2 || game.moves != 0 { return 14 }
+    game.moves = 4
+    if IslandOpenLatest(*progress, *game) || game.moves != 4 { return 15 }
+    saved := IslandCampaignSave(*progress, *game)
+    restored: IslandProgress
+    position: IslandGame
+    if !IslandCampaignRestore(*restored, *position, saved) || restored.unlocked != 2 || position.level != 2 || position.moves != 4 { return 16 }
+    // A game saved before the islands changed keeps its progress and
+    // restarts its island: first an old J1 save, then a changed board.
+    island_campaign_bytes[1] = #char "1"
+    if !IslandCampaignRestore(*restored, *position, TextView(island_campaign_bytes[:ISLAND_CAMPAIGN_SIZE])) ||
+    restored.unlocked != 2 || position.level != 2 || position.moves != 0 { return 19 }
+    island_campaign_bytes[1] = #char "2"
+    island_campaign_bytes[ISLAND_CAMPAIGN_SIZE] = ifx island_campaign_bytes[ISLAND_CAMPAIGN_SIZE] == #char "0" then #char "1" else #char "0"
+    position.moves = 9
+    if !IslandCampaignRestore(*restored, *position, TextView(island_campaign_bytes[:])) || position.level != 2 || position.moves != 0 { return 20 }
+    // The last island stays playable after it is won.
+    progress.unlocked = IslandLevelCount()
+    if !IslandSelectLevel(*progress, *game, IslandLevelCount()) { return 17 }
+    game.won = true
+    if !IslandOpenLatest(*progress, *game) || game.level != IslandLevelCount() || game.won { return 18 }
+    return 0
+}
+
+BoardChecks :: () -> s32 {
+    game: IslandGame
+    for level: cast(s32)1..IslandLevelCount() {
+        if !IslandLoad(*game, level) || game.player < 0 || IslandLevelName(level) == "" { return 30 }
+        saved := IslandSave(*game)
+        copy: IslandGame
+        if !IslandRestore(*copy, saved) || IslandSave(*copy) != saved { return 31 }
+    }
+    return 0
+}
+
+// One move and what it is heard as; -1 when nothing moved.
+Heard :: (game: *IslandGame, direction: s32) -> s32 {
+    before := game.*
+    if !IslandMove(game, direction) { return -1 }
+    return IslandEvent(*before, game)
+}
+
+// A sandy island with Shovey in the second row, second column.
+Sand :: () -> IslandGame {
+    game := IslandGame.{.level = 1, .player = 21, .direction = 1, .spike = -1, .spike_switch = -1, .water_switch = -1}
+    for at: cast(s32)0..ISLAND_CELLS - 1 { game.terrain[at] = 1 }
+    return game
+}
+
+// A plain step is quiet; pushes, splashes, goals, pickups, openings,
+// teleporters, the slingshot and coming home are each heard as themselves.
+EventChecks :: () -> s32 {
+    game := Sand()
+    if Heard(*game, 2) != ISLAND_EVENT_NONE { return 40 }
+    game = Sand(); game.objects[22] = 57
+    if Heard(*game, 2) != ISLAND_EVENT_PUSH { return 41 }
+    game = Sand(); game.objects[22] = 57; game.terrain[23] = 0
+    if Heard(*game, 2) != ISLAND_EVENT_SPLASH { return 42 }
+    game = Sand(); game.objects[22] = 61; game.terrain[23] = 26
+    if Heard(*game, 2) != ISLAND_EVENT_GOAL { return 43 }
+    game = Sand(); game.objects[22] = 60
+    if Heard(*game, 2) != ISLAND_EVENT_PICKUP { return 44 }
+    game = Sand(); game.keys = 1; game.objects[1] = 58
+    if Heard(*game, 1) != ISLAND_EVENT_GATE { return 45 }
+    game = Sand(); game.terrain[22] = 37; game.terrain[100] = 37
+    if Heard(*game, 2) != ISLAND_EVENT_TELEPORT { return 46 }
+    game = Sand(); game.ammunition = 1; game.objects[1] = 83
+    if Heard(*game, 1) != ISLAND_EVENT_SHOT { return 47 }
+    game = Sand(); game.objects[1] = 75
+    if Heard(*game, 1) != ISLAND_EVENT_WON { return 48 }
+    return 0
+}
+
+#program_export
+Check :: () -> s32 {
+    result := OpenChecks()
+    if result != 0 { return result }
+    result = EventChecks()
+    if result != 0 { return result }
+    return BoardChecks()
+}

@@ -1,0 +1,144 @@
+[island_restart]
+Restart
+---
+[island_help]
+Help
+---
+[island_continue]
+Continue
+---
+[island_up]
+Up
+---
+[island_down]
+Down
+---
+[island_left]
+Left
+---
+[island_right]
+Right
+---
+[island_save_failed]
+Could not save. Try another move to retry.
+---
+[island_home]
+Home
+---
+[island_crate]
+Crate
+---
+[island_key]
+Key
+---
+[island_ammo]
+Projectile
+---
+[island_portal]
+Teleporter
+---
+[island_locked]
+Locked
+---
+[island_completed]
+Completed
+---
+[island_available]
+Available
+---
+[island_level]
+Island
+---
+[island_levels]
+Islands
+---
+[island_seed]
+Seed
+---
+[island_crab]
+Crab
+---
+[island_pearl]
+Pearl
+---
+[island_coin]
+Coin
+---
+[island_coconut]
+Coconut
+---
+[island_string]
+String
+---
+[island_object]
+Object
+---
+[island_terrain]
+Terrain
+---
+[island_controls]
+Arrow keys / WASD · R restart · H help
+---
+[island_ready]
+All goals met. Enter the house from below.
+---
+[island_finale]
+All islands complete!
+---
+[island_help_1]
+Move with the arrow keys or WASD, the direction buttons, or
+---
+[island_help_2]
+an adjacent board cell. You can step down from grass, but cannot
+---
+[island_help_3]
+climb onto it. Push objects one square; statues of the same color
+---
+[island_help_4]
+move together. Match statues, barrels and flowers to their targets. Sink crates
+---
+[island_help_5]
+to build bridges and remove stars in water. Collect keys for chests,
+---
+[island_help_6]
+return baby crabs to their mother from below, and approach the
+---
+[island_help_7]
+pirate from the left. Pearls fill towers. Plant seeds, fill a bottle
+---
+[island_help_8]
+at a well, then water a planted field. Springs jump; rafts cross
+---
+[island_help_9]
+open water; ice breaks under Shovey. Plates retract spikes or reveal paths.
+---
+[island_help_10]
+Roll coconuts into holes or onto marked targets. With ammunition, approach the
+---
+[island_help_11]
+slingshot from below; leaves redirect the shot. Push numbered stones in
+---
+[island_help_12]
+order and change all mood shells to yellow. Complete a string between
+---
+[island_help_13]
+its markers to flip the flower colors along its path. An octopus
+---
+[island_help_14]
+follows until it reaches a well and pauses while you draw a
+---
+[island_help_15]
+string. Finish the goals, then enter the house from below. Winning opens
+---
+[island_help_16]
+the next island automatically. Selecting an unlocked island always starts it fresh.
+---
+
+[island_coming_title]
+Coming soon
+
+[island_coming_body]
+Shovey Island is still being polished. It will return when every island is perfect.
+
+[island_coming_button]
+Coming soon

@@ -1,0 +1,144 @@
+[island_restart]
+Znovu
+---
+[island_help]
+Nápověda
+---
+[island_continue]
+Pokračovat
+---
+[island_up]
+Nahoru
+---
+[island_down]
+Dolů
+---
+[island_left]
+Vlevo
+---
+[island_right]
+Vpravo
+---
+[island_save_failed]
+Uložení se nezdařilo. Zkus další tah.
+---
+[island_home]
+Dům
+---
+[island_crate]
+Bedna
+---
+[island_key]
+Klíč
+---
+[island_ammo]
+Střela
+---
+[island_portal]
+Teleport
+---
+[island_locked]
+Zamčeno
+---
+[island_completed]
+Dokončeno
+---
+[island_available]
+Dostupné
+---
+[island_level]
+Ostrov
+---
+[island_levels]
+Ostrovy
+---
+[island_seed]
+Semínko
+---
+[island_crab]
+Krab
+---
+[island_pearl]
+Perla
+---
+[island_coin]
+Mince
+---
+[island_coconut]
+Kokos
+---
+[island_string]
+Provázek
+---
+[island_object]
+Předmět
+---
+[island_terrain]
+Terén
+---
+[island_controls]
+Šipky / WASD · R restart · H nápověda
+---
+[island_ready]
+Všechny úkoly jsou splněny. Vstup do domu zdola.
+---
+[island_finale]
+Všechny ostrovy jsou hotové!
+---
+[island_help_1]
+Pohybuj se šipkami, WASD, směrovými tlačítky nebo klepnutím na sousední
+---
+[island_help_2]
+políčko. Z trávy můžeš sestoupit, ale ne vystoupit na ni.
+---
+[island_help_3]
+Předměty se posouvají o jedno políčko; sochy stejné barvy se
+---
+[island_help_4]
+pohybují společně. Umísti sochy, sudy a květiny na odpovídající cíle. Bedny
+---
+[island_help_5]
+ve vodě vytvoří most, hvězdice se potopí. Sbírej klíče k
+---
+[island_help_6]
+truhlám, nos malé kraby matce zdola a k pirátovi přistupuj
+---
+[island_help_7]
+zleva. Perly naplní věže. Zasaď semínka, naplň láhev u studny
+---
+[island_help_8]
+a zalij zasazené pole. Pružiny odrážejí, vory plují po volné vodě
+---
+[island_help_9]
+a led pod Shoveym praská. Desky zasouvají bodce nebo odhalují
+---
+[island_help_10]
+cesty. Kutálej kokosy do děr nebo na označené cíle. Se
+---
+[island_help_11]
+střelivem přistup k praku zdola; listy mění směr střely. Číslované
+---
+[island_help_12]
+kameny posouvej ve správném pořadí a všechny barevné mušle změň na
+---
+[island_help_13]
+žluté. Spoj značky provázkem a obrátíš barvy květin na jeho
+---
+[island_help_14]
+cestě. Chobotnice tě následuje ke studni a při kreslení provázku
+---
+[island_help_15]
+čeká. Splň cíle a vstup do domu zdola. Výhra automaticky
+---
+[island_help_16]
+otevře další ostrov. Výběr odemčeného ostrova ho vždy spustí od začátku.
+---
+
+[island_coming_title]
+Připravujeme
+
+[island_coming_body]
+Shovey Island ještě doladujeme. Vrátí se, až bude každý ostrov dokonalý.
+
+[island_coming_button]
+Připravujeme

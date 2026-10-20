@@ -1,0 +1,70 @@
+{
+  "generator": "OpenRouter audio/speech (https://openrouter.ai/api/v1/audio/speech)",
+  "method": "Each sound was generated for Shovey from its prompt, the best of several candidates kept, then converted with ffmpeg to mono 16-bit PCM WAV at 22050 Hz: trimmed to the sound, faded in and out and peak-normalized to -3 dBFS.",
+  "files": [
+    {
+      "file": "sounds/push.wav",
+      "what": "Shovey pushes, rolls, grows or turns something",
+      "model": "bytedance-seed/seed-audio-1-0",
+      "prompt": "A short soft shuffle of a small wooden crate pushed across fine dry sand, muted and warm, 0.35 seconds.",
+      "duration": 0.35,
+      "sha256": "c409838a9669218e48d0cc94b8455c35c09ff7418097988b45f3d3cf61dda86a"
+    },
+    {
+      "file": "sounds/splash.wav",
+      "what": "a crate or sea star goes into the water, the raft glides or thin ice breaks",
+      "model": "bytedance-seed/seed-audio-1-0",
+      "prompt": "A small gentle water splash, like a pebble dropped into calm clear shallow water, soft, 0.5 seconds.",
+      "duration": 0.31,
+      "sha256": "fa9c3dd979dbf1f5b306a12a45d9b05b126692bbcc13064571f72d9b834b62fb"
+    },
+    {
+      "file": "sounds/goal.wav",
+      "what": "a statue, barrel, flower, stone or creature reaches its place",
+      "model": "bytedance-seed/seed-audio-1-0",
+      "prompt": "A single soft marimba note, warm and round, gentle and calm, 0.6 seconds.",
+      "duration": 0.6,
+      "sha256": "85fcf2af16bc6b36393ed36f27fabee526489e4195014d9daee0af4cd6806a37"
+    },
+    {
+      "file": "sounds/pickup.wav",
+      "what": "Shovey picks up a key, seed, crab, stone, coin or pearl",
+      "model": "bytedance-seed/seed-audio-1-0",
+      "prompt": "A soft bright little wooden marimba tick, high and gentle, 0.25 seconds.",
+      "duration": 0.4,
+      "sha256": "82872f66a0a609f58bb4b2d4eb294bee0e0b9cffe5ebbb33b04f37921e313fc5"
+    },
+    {
+      "file": "sounds/gate.wav",
+      "what": "something opens or clears: a chest, a lantern, spikes, a hidden path, a boulder or the pirate",
+      "model": "bytedance-seed/seed-audio-1-0",
+      "prompt": "A soft wooden lid lifting open with a gentle low creak and a muted knock, calm, 0.45 seconds.",
+      "duration": 0.3,
+      "sha256": "ecef073fce8955f9ad787e42d66eed6b1c93b53db71ad21c40b5dabae97ac941"
+    },
+    {
+      "file": "sounds/teleport.wav",
+      "what": "a teleporter or a spring flower carries Shovey",
+      "model": "bytedance-seed/seed-audio-1-0",
+      "prompt": "A gentle airy whoosh like a soft sea breeze with a faint soft marimba shimmer, calm and natural, 0.5 seconds.",
+      "duration": 0.299,
+      "sha256": "578d2ca1214bbf925cb6b2a260d7f5fc29853ab84550d876b3ce2c5be35aa8e9"
+    },
+    {
+      "file": "sounds/shot.wav",
+      "what": "the slingshot sends a stone",
+      "model": "bytedance-seed/seed-audio-1-0",
+      "prompt": "A soft elastic thwip of a stretched rubber band released, with a quick muted whoosh, gentle, 0.3 seconds.",
+      "duration": 0.166,
+      "sha256": "a95559573bf9faf2bd0a9413c29bdd3ffc4f541e345d5bd0deefa116ab9581f3"
+    },
+    {
+      "file": "sounds/won.wav",
+      "what": "the island is solved and Shovey is home",
+      "model": "bytedance-seed/seed-audio-1-0",
+      "prompt": "A short warm happy melody of three soft rising notes on a wooden marimba, calm and cozy, 1.3 seconds.",
+      "duration": 1.5,
+      "sha256": "5c404f2a5f7df4f5fce5b6c725ad7b85cf452c776723383909ffe4cb933ba04e"
+    }
+  ]
+}

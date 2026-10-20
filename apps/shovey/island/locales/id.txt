@@ -1,0 +1,144 @@
+[island_restart]
+Ulangi
+---
+[island_help]
+Bantuan
+---
+[island_continue]
+Lanjutkan
+---
+[island_up]
+Atas
+---
+[island_down]
+Bawah
+---
+[island_left]
+Kiri
+---
+[island_right]
+Kanan
+---
+[island_save_failed]
+Gagal menyimpan. Coba langkah lain untuk mengulang.
+---
+[island_home]
+Rumah
+---
+[island_crate]
+Peti
+---
+[island_key]
+Kunci
+---
+[island_ammo]
+Proyektil
+---
+[island_portal]
+Teleportasi
+---
+[island_locked]
+Terkunci
+---
+[island_completed]
+Selesai
+---
+[island_available]
+Tersedia
+---
+[island_level]
+Pulau
+---
+[island_levels]
+Pulau-pulau
+---
+[island_seed]
+Benih
+---
+[island_crab]
+Kepiting
+---
+[island_pearl]
+Mutiara
+---
+[island_coin]
+Koin
+---
+[island_coconut]
+Kelapa
+---
+[island_string]
+Tali
+---
+[island_object]
+Benda
+---
+[island_terrain]
+Medan
+---
+[island_controls]
+Tombol panah / WASD · R ulangi · H bantuan
+---
+[island_ready]
+Semua tujuan selesai. Masuk ke rumah dari bawah.
+---
+[island_finale]
+Semua pulau selesai!
+---
+[island_help_1]
+Bergeraklah dengan tombol panah, WASD, tombol arah, atau petak di
+---
+[island_help_2]
+sebelahmu. Kamu bisa turun dari rumput, tetapi tidak bisa naik ke
+---
+[island_help_3]
+atasnya. Dorong benda satu petak; patung dengan warna yang sama
+---
+[island_help_4]
+bergerak bersama. Tempatkan patung, tong, dan bunga pada sasarannya. Tenggelamkan peti
+---
+[island_help_5]
+untuk membuat jembatan dan bintang untuk menghilangkannya. Ambil kunci untuk
+---
+[island_help_6]
+peti harta, kembalikan bayi kepiting kepada induknya dari bawah, dan dekati
+---
+[island_help_7]
+bajak laut dari kiri. Mutiara mengisi menara. Tanam benih, isi
+---
+[island_help_8]
+botol di sumur, lalu sirami lahan yang ditanami. Pegas melontarkanmu, rakit
+---
+[island_help_9]
+melintasi air terbuka, dan es pecah di bawah Shovey. Pelat menarik
+---
+[island_help_10]
+duri atau menampakkan jalan. Gelindingkan kelapa ke lubang atau sasaran
+---
+[island_help_11]
+bertanda. Dengan amunisi, dekati ketapel dari bawah; daun membelokkan tembakan. Dorong
+---
+[island_help_12]
+batu bernomor secara berurutan dan ubah semua kerang berwarna menjadi
+---
+[island_help_13]
+kuning. Hubungkan penanda tali untuk membalik warna bunga di sepanjang jalurnya.
+---
+[island_help_14]
+Gurita mengikuti hingga ke sumur dan berhenti saat kamu menarik
+---
+[island_help_15]
+tali. Selesaikan tujuan, lalu masuk ke rumah dari bawah. Kemenangan otomatis
+---
+[island_help_16]
+memulai pulau berikutnya. Memilih pulau yang terbuka selalu memulainya dari awal.
+---
+
+[island_coming_title]
+Segera hadir
+
+[island_coming_body]
+Shovey Island masih kami sempurnakan. Kembali saat setiap pulau sudah sempurna.
+
+[island_coming_button]
+Segera hadir

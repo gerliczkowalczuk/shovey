@@ -1,0 +1,102 @@
+// Island's puzzles end with its last island; saves keep 175 places. The separate
+// verified app identity owns this campaign; Classic's record is never read.
+#import "std/text_buffer"
+#import, file "island_engine.zi";
+#import, file "../island_levels.zi";
+
+IslandProgress :: struct {
+    unlocked: s32
+    completed: [175]bool
+}
+
+IslandProgressNew :: () -> IslandProgress { return IslandProgress.{.unlocked = 1} }
+
+IslandLevelUnlocked :: (progress: *IslandProgress, level: s32) -> bool {
+    return level >= 1 && level <= IslandLevelCount() && level <= progress.unlocked
+}
+
+IslandRecordWin :: (progress: *IslandProgress, game: *IslandGame) {
+    if !game.won || !IslandLevelUnlocked(progress, game.level) { return }
+    progress.completed[game.level - 1] = true
+    if game.level == progress.unlocked && game.level < IslandLevelCount() { progress.unlocked += 1 }
+}
+
+IslandSelectLevel :: (progress: *IslandProgress, game: *IslandGame, level: s32) -> bool {
+    return IslandLevelUnlocked(progress, level) && IslandLoad(game, level)
+}
+
+// Opening the game goes straight to the newest unlocked island. An unfinished
+// position there is kept; anything else starts it from the beginning.
+IslandOpenLatest :: (progress: *IslandProgress, game: *IslandGame) -> bool {
+    IslandRecordWin(progress, game)
+    if game.level == progress.unlocked && !game.won { return false }
+    return IslandSelectLevel(progress, game, progress.unlocked)
+}
+
+IslandContinue :: (progress: *IslandProgress, game: *IslandGame) -> bool {
+    IslandRecordWin(progress, game)
+    return game.won && game.level < IslandLevelCount() && IslandSelectLevel(progress, game, game.level + 1)
+}
+
+// J2 adds a fingerprint of the island's starting board after the J1 layout.
+ISLAND_CAMPAIGN_SIZE :: ISLAND_SAVE_SIZE + 179
+island_campaign_bytes: [ISLAND_CAMPAIGN_SIZE + 8]u8;
+
+// FNV-1a over an island's starting board; see ShoveyBoardMark.
+IslandBoardMark :: (level: s32) -> u64 {
+    data := IslandLevelData(level)
+    mark: u64 = 2166136261
+    for at: cast(s64)0..data.count - 1 {
+        mark = ((mark ^ cast(u64)data[at]) * 16777619) & 4294967295
+    }
+    return mark
+}
+
+IslandCampaignSave :: (progress: *IslandProgress, game: *IslandGame) -> string {
+    island_campaign_bytes[0] = #char "J"; island_campaign_bytes[1] = #char "2"
+    alphabet := "0123456789abcdef"
+    island_campaign_bytes[2] = alphabet[(progress.unlocked >> 4) & 15]
+    island_campaign_bytes[3] = alphabet[progress.unlocked & 15]
+    for at: cast(s32)0..174 {
+        island_campaign_bytes[4 + at] = ifx progress.completed[at] then #char "1" else #char "0"
+    }
+    position := IslandSave(game)
+    for at: cast(s32)0..ISLAND_SAVE_SIZE - 1 { island_campaign_bytes[179 + at] = position[at] }
+    mark := IslandBoardMark(game.level)
+    for digit: cast(s32)0..7 {
+        island_campaign_bytes[ISLAND_CAMPAIGN_SIZE + digit] = alphabet[cast(s32)((mark >> cast(u64)((7 - digit) * 4)) & 15)]
+    }
+    return TextView(island_campaign_bytes[:])
+}
+
+IslandCampaignRestore :: (progress: *IslandProgress, game: *IslandGame, text: string) -> bool {
+    marked := text.count == ISLAND_CAMPAIGN_SIZE + 8 && text[:2] == "J2"
+    if !marked && (text.count != ISLAND_CAMPAIGN_SIZE || text[:2] != "J1") { return false }
+    restored: IslandProgress
+    restored.unlocked = IslandByte(text, 2)
+    if restored.unlocked < 1 || restored.unlocked > IslandLevelCount() { return false }
+    for at: cast(s32)0..174 {
+        byte := text[4 + at]
+        if byte != #char "0" && byte != #char "1" { return false }
+        restored.completed[at] = byte == #char "1"
+        if restored.completed[at] && (at + 1 > restored.unlocked ||
+            (at + 1 == restored.unlocked && restored.unlocked < IslandLevelCount())) { return false }
+    }
+    position: IslandGame
+    if !IslandRestore(*position, text[179:ISLAND_CAMPAIGN_SIZE]) || !IslandLevelUnlocked(*restored, position.level) { return false }
+    mark: u64 = 0
+    if marked {
+        for digit: cast(s32)0..7 {
+            value := IslandDigit(text[ISLAND_CAMPAIGN_SIZE + digit])
+            if value < 0 { marked = false; break }
+            mark = mark * 16 + cast(u64)value
+        }
+    }
+    // Keep the progress, but start an island whose board has changed afresh.
+    if !marked || mark != IslandBoardMark(position.level) {
+        if !IslandLoad(*position, position.level) { return false }
+    }
+    progress.* = restored
+    game.* = position
+    return true
+}

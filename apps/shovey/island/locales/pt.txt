@@ -1,0 +1,144 @@
+[island_restart]
+Reiniciar
+---
+[island_help]
+Ajuda
+---
+[island_continue]
+Continuar
+---
+[island_up]
+Cima
+---
+[island_down]
+Baixo
+---
+[island_left]
+Esquerda
+---
+[island_right]
+Direita
+---
+[island_save_failed]
+Não foi possível salvar. Tente outro movimento.
+---
+[island_home]
+Casa
+---
+[island_crate]
+Caixa
+---
+[island_key]
+Chave
+---
+[island_ammo]
+Projétil
+---
+[island_portal]
+Teletransportador
+---
+[island_locked]
+Bloqueado
+---
+[island_completed]
+Concluído
+---
+[island_available]
+Disponível
+---
+[island_level]
+Ilha
+---
+[island_levels]
+Ilhas
+---
+[island_seed]
+Semente
+---
+[island_crab]
+Caranguejo
+---
+[island_pearl]
+Pérola
+---
+[island_coin]
+Moeda
+---
+[island_coconut]
+Coco
+---
+[island_string]
+Fio
+---
+[island_object]
+Objeto
+---
+[island_terrain]
+Terreno
+---
+[island_controls]
+Setas / WASD · R reiniciar · H ajuda
+---
+[island_ready]
+Objetivos cumpridos. Entre na casa por baixo.
+---
+[island_finale]
+Todas as ilhas concluídas!
+---
+[island_help_1]
+Mova-se com as setas, WASD, os botões de direção ou uma
+---
+[island_help_2]
+casa adjacente. Você pode descer da grama, mas não subir nela. Empurre
+---
+[island_help_3]
+objetos uma casa; estátuas da mesma cor se movem juntas. Coloque
+---
+[island_help_4]
+estátuas, barris e flores nos alvos correspondentes. Afunde caixas para criar pontes
+---
+[island_help_5]
+e estrelas para eliminá-las. Pegue chaves para os baús, devolva os filhotes
+---
+[island_help_6]
+de caranguejo à mãe por baixo e aproxime-se do pirata pela
+---
+[island_help_7]
+esquerda. Pérolas enchem torres. Plante sementes, encha uma garrafa no poço e
+---
+[island_help_8]
+regue o campo plantado. Molas fazem saltar, jangadas cruzam águas livres e
+---
+[island_help_9]
+o gelo quebra sob Shovey. Placas recolhem espinhos ou revelam caminhos.
+---
+[island_help_10]
+Role cocos para buracos ou alvos marcados. Com munição, use o estilingue
+---
+[island_help_11]
+por baixo; folhas desviam o disparo. Empurre as pedras numeradas em
+---
+[island_help_12]
+ordem e deixe amarelas todas as conchas coloridas. Una as marcas do
+---
+[island_help_13]
+fio para inverter as cores das flores ao longo do caminho. O
+---
+[island_help_14]
+polvo segue até um poço e espera enquanto você estende um
+---
+[island_help_15]
+fio. Cumpra os objetivos e entre na casa por baixo. A vitória
+---
+[island_help_16]
+inicia automaticamente a próxima ilha. Escolher uma ilha desbloqueada sempre a reinicia.
+---
+
+[island_coming_title]
+Em breve
+
+[island_coming_body]
+Ainda estamos a lapidar Shovey Island. Ele volta quando todas as ilhas estiverem perfeitas.
+
+[island_coming_button]
+Em breve

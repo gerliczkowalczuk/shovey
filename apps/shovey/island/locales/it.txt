@@ -1,0 +1,144 @@
+[island_restart]
+Ricomincia
+---
+[island_help]
+Aiuto
+---
+[island_continue]
+Continua
+---
+[island_up]
+Su
+---
+[island_down]
+Giù
+---
+[island_left]
+Sinistra
+---
+[island_right]
+Destra
+---
+[island_save_failed]
+Salvataggio non riuscito. Prova un’altra mossa.
+---
+[island_home]
+Casa
+---
+[island_crate]
+Cassa
+---
+[island_key]
+Chiave
+---
+[island_ammo]
+Proiettile
+---
+[island_portal]
+Teletrasporto
+---
+[island_locked]
+Bloccato
+---
+[island_completed]
+Completato
+---
+[island_available]
+Disponibile
+---
+[island_level]
+Isola
+---
+[island_levels]
+Isole
+---
+[island_seed]
+Seme
+---
+[island_crab]
+Granchio
+---
+[island_pearl]
+Perla
+---
+[island_coin]
+Moneta
+---
+[island_coconut]
+Noce di cocco
+---
+[island_string]
+Filo
+---
+[island_object]
+Oggetto
+---
+[island_terrain]
+Terreno
+---
+[island_controls]
+Frecce / WASD · R ricomincia · H aiuto
+---
+[island_ready]
+Obiettivi completati. Entra in casa dal basso.
+---
+[island_finale]
+Tutte le isole completate!
+---
+[island_help_1]
+Muoviti con le frecce, WASD, i pulsanti direzionali o una casella adiacente.
+---
+[island_help_2]
+Puoi scendere dall’erba, ma non salirci. Spingi gli oggetti di una casella;
+---
+[island_help_3]
+le statue dello stesso colore si muovono insieme. Sistema statue, barili e fiori
+---
+[island_help_4]
+sui rispettivi bersagli. Affonda le casse per creare ponti e le stelle
+---
+[island_help_5]
+per eliminarle. Raccogli le chiavi per i forzieri, riporta i piccoli granchi alla
+---
+[island_help_6]
+madre dal basso e avvicinati al pirata da sinistra. Le perle riempiono
+---
+[island_help_7]
+le torri. Pianta i semi, riempi una bottiglia al pozzo e annaffia il
+---
+[island_help_8]
+campo seminato. Le molle fanno saltare, le zattere attraversano l’acqua libera e
+---
+[island_help_9]
+il ghiaccio si rompe sotto Shovey. Le piastre ritraggono le punte o
+---
+[island_help_10]
+rivelano i sentieri. Fai rotolare le noci di cocco nelle buche o sui
+---
+[island_help_11]
+bersagli. Con le munizioni, usa la fionda dal basso; le foglie deviano
+---
+[island_help_12]
+il colpo. Spingi le pietre numerate in ordine e rendi gialle tutte le
+---
+[island_help_13]
+conchiglie colorate. Collega i segni del filo per invertire i colori dei
+---
+[island_help_14]
+fiori lungo il percorso. Il polpo ti segue fino al pozzo e aspetta
+---
+[island_help_15]
+mentre stendi un filo. Completa gli obiettivi, poi entra in casa dal
+---
+[island_help_16]
+basso. La vittoria avvia automaticamente l’isola successiva. Scegliere un’isola sbloccata la ricomincia sempre.
+---
+
+[island_coming_title]
+In arrivo
+
+[island_coming_body]
+Stiamo ancora rifinendo Shovey Island. Tornerà quando ogni isola sarà perfetta.
+
+[island_coming_button]
+In arrivo

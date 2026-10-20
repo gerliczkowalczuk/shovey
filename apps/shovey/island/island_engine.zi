@@ -1,0 +1,677 @@
+// Island uses separate terrain and object layers. Keep the raw IDs:
+// several sand variants and temporary object states have distinct rules.
+#import "text_buffer"
+#import, file "../island_levels.zi";
+
+ISLAND_WIDTH :: 20
+ISLAND_HEIGHT :: 12
+ISLAND_CELLS :: 240
+
+IslandGame :: struct {
+    terrain: [ISLAND_CELLS]s32
+    objects: [ISLAND_CELLS]s32
+    path: [ISLAND_CELLS]s32
+    level: s32
+    player: s32
+    direction: s32
+    moves: s32
+    keys: s32
+    seeds: s32
+    crabs: s32
+    crabs_due: s32
+    pearls: s32
+    ammunition: s32
+    coins: s32
+    coins_due: s32
+    towers_due: s32
+    number_count: s32
+    path_count: s32
+    spike: s32
+    spike_switch: s32
+    water_switch: s32
+    string_active: bool
+    won: bool
+}
+
+IslandNeighbor :: (at: s32, direction: s32) -> s32 {
+    if at < 0 || at >= ISLAND_CELLS { return -1 }
+    if direction == 0 && at % ISLAND_WIDTH > 0 { return at - 1 }
+    if direction == 1 && at >= ISLAND_WIDTH { return at - ISLAND_WIDTH }
+    if direction == 2 && at % ISLAND_WIDTH < ISLAND_WIDTH - 1 { return at + 1 }
+    if direction == 3 && at < ISLAND_CELLS - ISLAND_WIDTH { return at + ISLAND_WIDTH }
+    return -1
+}
+
+IslandDigit :: (byte: u8) -> s32 {
+    if byte >= #char "0" && byte <= #char "9" { return cast(s32)(byte - #char "0") }
+    if byte >= #char "a" && byte <= #char "f" { return cast(s32)(byte - #char "a") + 10 }
+    return -1
+}
+
+IslandByte :: (text: string, at: s32) -> s32 {
+    if at < 0 || at + 1 >= text.count { return -1 }
+    a := IslandDigit(text[at]); b := IslandDigit(text[at + 1])
+    if a < 0 || b < 0 { return -1 }
+    return a * 16 + b
+}
+
+IslandRaised :: (terrain: s32) -> bool {
+    return (terrain >= 13 && terrain <= 23) || terrain == 47 || terrain == 48
+}
+
+IslandGrass :: (terrain: s32) -> bool { return terrain >= 13 && terrain <= 23 }
+
+IslandPickup :: (object: s32) -> bool {
+    return object == 60 || object == 64 || object == 66 || object == 80 || object == 81 || object == 82
+}
+
+IslandPushable :: (object: s32) -> bool {
+    return (object >= 61 && object <= 63) || object == 57 || object == 65 ||
+    (object >= 67 && object <= 69) || object == 72 || (object >= 85 && object <= 88) ||
+    object == 94 || (object >= 97 && object <= 99) || (object >= 101 && object <= 105) || object == 116
+}
+
+IslandLevelCount :: () -> s32 { return ISLAND_LEVEL_COUNT }
+
+IslandLoad :: (game: *IslandGame, level: s32) -> bool {
+    return IslandLoadData(game, level, IslandLevelData(level))
+}
+
+// Loads 960 hex digits: 240 terrain bytes, then 240 object bytes, row order.
+IslandLoadData :: (game: *IslandGame, level: s32, data: string) -> bool {
+    if data.count != ISLAND_CELLS * 4 { return false }
+    loaded := IslandGame.{.level = level, .player = -1, .direction = 1,
+        .spike = -1, .spike_switch = -1, .water_switch = -1}
+    for at: cast(s32)0..ISLAND_CELLS - 1 {
+        loaded.terrain[at] = IslandByte(data, at * 2)
+        object := IslandByte(data, ISLAND_CELLS * 2 + at * 2)
+        if object == 56 { loaded.player = at }
+        else { loaded.objects[at] = object }
+        if object == 66 { loaded.crabs_due += 1 }
+        if object == 82 || object == 58 { loaded.coins_due += 1 }
+        if object == 52 { loaded.towers_due += 1 }
+        if object == 89 { loaded.spike = at }
+        if loaded.terrain[at] == 30 { loaded.spike_switch = at }
+        if loaded.terrain[at] == 41 { loaded.water_switch = at }
+        if loaded.terrain[at] == 43 { loaded.terrain[at] = 42 }
+    }
+    if loaded.player < 0 { return false }
+    // Setup runs Cursor after loading the two layers. No direction
+    // has been attempted yet, so only stationary events run at this boundary.
+    IslandCursor(*loaded, -1)
+    game.* = loaded
+    return true
+}
+
+// The finish checks every target. Extra statues/barrels, trade counters
+// and optional inventory do not independently prevent entry from completing.
+IslandRemaining :: (game: *IslandGame) -> s32 {
+    remaining: s32 = 0
+    green := false; red := false
+    for at: cast(s32)0..ISLAND_CELLS - 1 {
+        terrain := game.terrain[at]; object := game.objects[at]
+        if (terrain >= 26 && terrain <= 28 && object != terrain + 35) ||
+        (terrain == 25 && object != 116) || (terrain == 47 && object != 111) ||
+        (terrain == 48 && object != 112) { remaining += 1 }
+        if object == 73 || object == 65 || (object >= 101 && object <= 105) ||
+        object == 97 || object == 98 || object == 114 { remaining += 1 }
+        if terrain == 10 { green = true }
+        if terrain == 35 { red = true }
+    }
+    if green && red { remaining += 1 }
+    return remaining
+}
+
+IslandCollect :: (game: *IslandGame) {
+    object := game.objects[game.player]
+    if object == 60 { game.keys += 1 }
+    if object == 64 { game.seeds += 1 }
+    if object == 66 { game.crabs += 1 }
+    if object == 80 { game.ammunition += 1 }
+    if object == 81 { game.pearls += 1 }
+    if object == 82 { game.coins += 1 }
+    if IslandPickup(object) { game.objects[game.player] = 0 }
+}
+
+IslandSpikes :: (game: *IslandGame) {
+    if game.spike >= 0 {
+        held := game.terrain[game.player] == 30 ||
+        (game.spike_switch >= 0 && game.objects[game.spike_switch] != 0)
+        if held {
+            if game.objects[game.spike] == 89 { game.objects[game.spike] = 0 }
+            game.terrain[game.spike] = 34
+        } else {
+            if game.objects[game.spike] == 0 && game.player != game.spike { game.objects[game.spike] = 89 }
+            game.terrain[game.spike] = 34
+        }
+    }
+}
+
+IslandWater :: (game: *IslandGame) {
+    if game.water_switch < 0 { return }
+    visible := game.terrain[game.player] == 41 ||
+    (game.water_switch >= 0 && game.objects[game.water_switch] != 0)
+    for at: cast(s32)0..ISLAND_CELLS - 1 {
+        if visible && game.terrain[at] == 42 { game.terrain[at] = 43 }
+        else if !visible && game.terrain[at] == 43 { game.terrain[at] = 42 }
+    }
+}
+
+IslandBombs :: (game: *IslandGame) {
+    trigger := game.player
+    if game.terrain[trigger] != 36 { return }
+    for x: cast(s32)0..ISLAND_WIDTH - 1 {
+        for y: cast(s32)0..ISLAND_HEIGHT - 1 {
+            at := y * ISLAND_WIDTH + x
+            if game.objects[at] != 72 { continue }
+            game.objects[at] = 0
+            for direction: cast(s32)0..3 {
+                neighbor := IslandNeighbor(at, direction)
+                if neighbor < 0 { continue }
+                object := game.objects[neighbor]
+                // Only the north blast removes a crate.
+                if object == 54 || (direction == 1 && object == 57) { game.objects[neighbor] = 0 }
+            }
+        }
+    }
+    game.terrain[trigger] = 1
+}
+
+IslandCoconutTargets :: (game: *IslandGame) {
+    exists := false
+    for at: cast(s32)0..ISLAND_CELLS - 1 {
+        if game.terrain[at] != 45 { continue }
+        exists = true
+        if game.objects[at] != 70 { return }
+    }
+    if !exists { return }
+    for at: cast(s32)0..ISLAND_CELLS - 1 {
+        if game.objects[at] == 71 { game.objects[at] = 0; game.terrain[at] = 24 }
+    }
+}
+
+IslandOctopus :: (game: *IslandGame, direction: s32) {
+    if !game.string_active && direction >= 0 && direction <= 3 {
+        old := IslandNeighbor(game.player, (direction + 2) % 4)
+        behind := IslandNeighbor(old, (direction + 2) % 4)
+        if behind >= 0 && game.objects[behind] == 114 {
+            game.objects[behind] = 0
+            game.objects[old] = ifx game.terrain[old] == 31 then 0 else 114
+        }
+    }
+    // Method29 reaches these checks even when no octopus followed.
+    IslandSpikes(game)
+    IslandWater(game)
+}
+
+IslandEvents :: (game: *IslandGame, direction: s32) {
+    IslandSpikes(game)
+    IslandOctopus(game, direction)
+    IslandWater(game)
+}
+
+IslandCursorEvents :: (game: *IslandGame, direction: s32) {
+    IslandEvents(game, direction)
+    IslandOctopus(game, direction)
+}
+
+IslandTrace :: (game: *IslandGame) {
+    if !game.string_active { return }
+    at := game.player
+    // Cursor records before collection; a pickup's recursive Cursor may
+    // therefore record the same coordinate again. Keep the bounded history.
+    if game.path_count < ISLAND_CELLS {
+        game.path[game.path_count] = at
+        game.path_count += 1
+    }
+    if game.objects[at] == 0 { game.objects[at] = 123 }
+    if game.objects[at] == 123 && (game.terrain[at] == 10 || game.terrain[at] == 35) { game.objects[at] = 124 }
+}
+
+IslandString :: (game: *IslandGame, direction: s32) {
+    at := game.player
+    if game.objects[at] == 122 {
+        game.terrain[at] = 24
+        if game.string_active {
+            game.string_active = false
+            game.objects[at] = 0
+            for index: cast(s32)0..game.path_count - 1 {
+                point := game.path[index]
+                if game.terrain[point] == 10 { game.terrain[point] = 35 }
+                else if game.terrain[point] == 35 { game.terrain[point] = 10 }
+            }
+            for point: cast(s32)0..ISLAND_CELLS - 1 {
+                if game.objects[point] == 123 || game.objects[point] == 124 { game.objects[point] = 0 }
+            }
+            game.path_count = 0
+            IslandCursorEvents(game, direction)
+            return
+        }
+        game.string_active = true
+        game.objects[at] = 123
+    }
+}
+
+// Both kinds transport Shovey. A collectible is occupied, not an exchange.
+IslandPlayerPortal :: (game: *IslandGame) {
+    from := game.player
+    terrain := game.terrain[from]
+    if terrain != 37 && terrain != 39 { return }
+    for x: cast(s32)0..ISLAND_WIDTH - 1 {
+        for y: cast(s32)0..ISLAND_HEIGHT - 1 {
+            at := y * ISLAND_WIDTH + x
+            if at != from && game.terrain[at] == terrain && game.objects[at] == 0 {
+                game.player = at
+                return
+            }
+        }
+    }
+}
+
+IslandItemPortal :: (game: *IslandGame, from: s32) {
+    if game.terrain[from] != 39 || game.objects[from] == 0 { return }
+    for x: cast(s32)0..ISLAND_WIDTH - 1 {
+        for y: cast(s32)0..ISLAND_HEIGHT - 1 {
+            at := y * ISLAND_WIDTH + x
+            if at != from && at != game.player && game.terrain[at] == 39 && game.objects[at] == 0 {
+                game.objects[at] = game.objects[from]
+                game.objects[from] = 0
+            }
+        }
+    }
+}
+
+IslandCursor :: (game: *IslandGame, direction: s32) {
+    IslandCursorEvents(game, direction)
+    IslandTrace(game)
+    if IslandPickup(game.objects[game.player]) {
+        IslandCollect(game)
+        IslandCursor(game, direction)
+        return
+    }
+    IslandString(game, direction)
+    if game.terrain[game.player] == 32 && game.seeds > 0 {
+        game.seeds -= 1
+        game.terrain[game.player] = 33
+    }
+    if game.terrain[game.player] == 40 { game.terrain[game.player] = 0 }
+    if game.terrain[game.player] == 37 || game.terrain[game.player] == 39 {
+        IslandPlayerPortal(game)
+        return
+    }
+    if game.terrain[game.player] == 36 {
+        IslandBombs(game)
+        IslandCursorEvents(game, direction)
+    }
+}
+
+IslandNormalPush :: (game: *IslandGame, from: s32, to: s32, direction: s32) {
+    object := game.objects[from]
+    game.objects[from] = 0
+    game.objects[to] = object
+    game.player = from
+    IslandCursor(game, direction)
+    if object >= 101 && object <= 105 {
+        game.objects[to] = object + 5
+        game.number_count += 1
+        if object - 100 != game.number_count {
+            for at: cast(s32)0..ISLAND_CELLS - 1 {
+                if game.objects[at] >= 106 && game.objects[at] <= 110 { game.objects[at] -= 5 }
+            }
+            game.number_count = 0
+        }
+    }
+    if object >= 61 && object <= 63 {
+        // Temporarily mark peers so a moved statue cannot be moved twice.
+        for at: cast(s32)0..ISLAND_CELLS - 1 {
+            if at != to && game.objects[at] == object { game.objects[at] = 69 }
+        }
+        for index: cast(s32)0..ISLAND_CELLS - 1 {
+            column_major := ifx direction == 2 || direction == 3 then ISLAND_CELLS - 1 - index else index
+            at := (column_major % ISLAND_HEIGHT) * ISLAND_WIDTH + column_major / ISLAND_HEIGHT
+            if game.objects[at] != 69 { continue }
+            destination := IslandNeighbor(at, direction)
+            if destination >= 0 && destination != game.player && game.objects[destination] == 0 &&
+            game.terrain[destination] != 0 && !IslandGrass(game.terrain[destination]) {
+                game.objects[at] = 0
+                game.objects[destination] = object
+            } else { game.objects[at] = object }
+        }
+    }
+    if object == 67 && game.terrain[to] == 31 { game.objects[to] = 68 }
+    if object == 68 && game.terrain[to] == 33 { game.objects[to] = 76 }
+    if object >= 97 && object <= 99 { game.objects[to] = ifx object == 99 then 97 else object + 1 }
+    IslandEvents(game, direction)
+    IslandItemPortal(game, to)
+}
+
+IslandPush :: (game: *IslandGame, from: s32, direction: s32) -> bool {
+    object := game.objects[from]
+    to := IslandNeighbor(from, direction)
+    if !IslandPushable(object) || to < 0 || game.objects[to] != 0 || to == game.player { return false }
+    player_raised := IslandRaised(game.terrain[game.player])
+    from_raised := IslandRaised(game.terrain[from])
+    to_raised := IslandRaised(game.terrain[to])
+    if game.terrain[to] == 0 {
+        if player_raised || (object != 57 && object != 65) { return false }
+        game.objects[from] = 0
+        if object == 57 { game.terrain[to] = 29 }
+        game.player = from
+        IslandCursor(game, direction)
+        return true
+    }
+    if player_raised == from_raised && from_raised == to_raised {
+        IslandNormalPush(game, from, to, direction)
+        return true
+    }
+    // The downhill branch has no player-height guard and bypasses
+    // numbered stones, linked statues, bottle transforms and item transport.
+    if from_raised && !to_raised {
+        game.objects[from] = 0
+        game.objects[to] = object
+        game.player = from
+        IslandCursor(game, direction)
+        return true
+    }
+    return false
+}
+
+IslandTrade :: (game: *IslandGame, at: s32, direction: s32) -> bool {
+    object := game.objects[at]
+    if object == 58 && direction == 1 && game.keys > 0 {
+        game.keys -= 1; game.coins += 1; game.objects[at] = 59
+        return true
+    }
+    if object == 73 && direction == 1 && game.crabs > 0 {
+        game.crabs_due -= game.crabs
+        game.crabs = 0
+        if game.crabs_due == 0 { game.objects[at] = 74 }
+        return true
+    }
+    if object == 90 && direction == 2 && game.coins > 0 {
+        game.coins_due -= game.coins
+        game.coins = 0
+        if game.coins_due == 0 { game.objects[at] = 0 }
+        return true
+    }
+    if object == 95 {
+        game.pearls += 1; game.objects[at] = 96
+        return true
+    }
+    if object == 52 && game.pearls > 0 {
+        game.pearls -= 1; game.towers_due -= 1; game.objects[at] = 93
+        if game.towers_due == 0 {
+            for point: cast(s32)0..ISLAND_CELLS - 1 {
+                if game.objects[point] == 93 { game.objects[point] = 0 }
+            }
+        }
+        return true
+    }
+    return false
+}
+
+IslandFlower :: (game: *IslandGame, at: s32, direction: s32) -> bool {
+    object := game.objects[at]
+    if (object != 111 && object != 112) || !IslandRaised(game.terrain[game.player]) { return false }
+    to := IslandNeighbor(at, direction)
+    if to < 0 || game.objects[to] != 0 { return false }
+    changed := false
+    while to >= 0 && game.objects[to] == 0 &&
+    (IslandGrass(game.terrain[to]) || (object == 111 && game.terrain[to] == 47) ||
+        (object == 112 && game.terrain[to] == 48)) {
+        game.objects[to] = object
+        changed = true
+        to = IslandNeighbor(to, direction)
+    }
+    if changed {
+        old := game.player
+        game.player = at
+        IslandEvents(game, direction); IslandCoconutTargets(game)
+        game.player = old
+    }
+    return changed
+}
+
+IslandCoconut :: (game: *IslandGame, at: s32, direction: s32) -> bool {
+    if game.objects[at] != 70 || IslandRaised(game.terrain[game.player]) != IslandRaised(game.terrain[at]) { return false }
+    to := IslandNeighbor(at, direction)
+    if to < 0 || game.terrain[to] == 0 || game.terrain[to] == 46 ||
+    (game.objects[to] != 0 && game.objects[to] != 71) ||
+    (!IslandRaised(game.terrain[at]) && IslandRaised(game.terrain[to])) { return false }
+    old := at
+    while to >= 0 && game.terrain[to] != 0 && game.terrain[to] != 46 &&
+    !IslandGrass(game.terrain[to]) && game.objects[to] == 0 {
+        game.objects[old] = 0; game.objects[to] = 70
+        old = to
+        to = IslandNeighbor(old, direction)
+    }
+    if to >= 0 && game.objects[to] == 71 {
+        game.objects[old] = 0; game.objects[to] = 0; game.terrain[to] = 24
+    } else if old == at { return false }
+    game.player = at
+    // Coconut movement has its own event branch, not the general Cursor.
+    IslandEvents(game, direction)
+    IslandCoconutTargets(game)
+    return true
+}
+
+IslandShoot :: (game: *IslandGame, slingshot: s32) -> bool {
+    if game.ammunition == 0 { return false }
+    game.ammunition -= 1
+    direction: s32 = 1
+    turns: s32 = 0
+    at := IslandNeighbor(slingshot, direction)
+    // A finite board and an eleven-turn limit bound every ray.
+    while at >= 0 {
+        if at == game.player || turns > 10 { break }
+        object := game.objects[at]
+        if object >= 85 && object <= 88 {
+            direction = (object - 84) % 4
+            turns += 1
+        } else if object == 94 { game.objects[at] = 95 }
+        else if object == 51 || object == 55 {
+            next := IslandNeighbor(at, direction)
+            if next >= 0 && (object == 51 || (game.objects[next] == 0 &&
+                game.terrain[next] != 0 && !IslandGrass(game.terrain[next]))) {
+                game.objects[next] = 70
+            }
+            break
+        } else if object != 71 && (object != 0 || IslandGrass(game.terrain[at])) { break }
+        at = IslandNeighbor(at, direction)
+    }
+    return true
+}
+
+IslandStep :: (game: *IslandGame, direction: s32) -> bool {
+    at := IslandNeighbor(game.player, direction)
+    if at < 0 { return false }
+    object := game.objects[at]
+    if object == 75 && direction == 1 {
+        game.player = at
+        IslandCursor(game, direction)
+        game.won = IslandRemaining(game) == 0
+        return true
+    }
+    if IslandTrade(game, at, direction) { return true }
+    if object == 83 && direction == 1 { return IslandShoot(game, at) }
+    if object >= 117 && object <= 120 {
+        game.objects[at] = 116 + ((direction + 3) % 4 + 1)
+        for point: cast(s32)0..ISLAND_CELLS - 1 {
+            if game.objects[point] >= 85 && game.objects[point] <= 88 {
+                game.objects[point] = 84 + direction
+                if direction == 0 { game.objects[point] = 88 }
+            }
+        }
+        return true
+    }
+    if object == 111 || object == 112 { return IslandFlower(game, at, direction) }
+    if object == 70 { return IslandCoconut(game, at, direction) }
+    if IslandPushable(object) { return IslandPush(game, at, direction) }
+    if object == 76 {
+        landing := IslandNeighbor(at, direction)
+        if landing < 0 || game.terrain[landing] == 0 { return false }
+        game.player = at
+        IslandCursor(game, direction)
+        if game.objects[landing] == 0 {
+            game.player = landing
+            IslandCursor(game, direction)
+        }
+        return true
+    }
+    if game.terrain[at] == 0 {
+        if game.terrain[game.player] != 38 || object != 0 { return false }
+        old := game.player
+        while at >= 0 && game.terrain[at] == 0 && game.objects[at] == 0 {
+            game.terrain[old] = 0
+            game.terrain[at] = 38
+            old = at
+            at = IslandNeighbor(old, direction)
+        }
+        game.player = old
+        IslandCursor(game, direction)
+        return true
+    }
+    if object != 0 && !IslandPickup(object) && object != 122 { return false }
+    if !IslandRaised(game.terrain[game.player]) && IslandRaised(game.terrain[at]) { return false }
+    game.player = at
+    IslandCursor(game, direction)
+    return true
+}
+
+IslandMove :: (game: *IslandGame, direction: s32) -> bool {
+    if direction < 0 || direction > 3 || game.won { return false }
+    game.direction = direction
+    changed := IslandStep(game, direction)
+    if changed { game.moves += 1 }
+    return changed
+}
+
+// What one move did that is worth hearing. The engine reports no events,
+// so the view keeps the island from before and compares.
+ISLAND_EVENT_NONE :: 0
+ISLAND_EVENT_PUSH :: 1
+ISLAND_EVENT_SPLASH :: 2
+ISLAND_EVENT_GOAL :: 3
+ISLAND_EVENT_PICKUP :: 4
+ISLAND_EVENT_GATE :: 5
+ISLAND_EVENT_TELEPORT :: 6
+ISLAND_EVENT_SHOT :: 7
+ISLAND_EVENT_WON :: 8
+
+// Sea stars, which sink, and what opens or clears: lanterns, boulders,
+// chests, coconut holes, bombs, spikes and the pirate; and revealed paths.
+IslandTally :: struct {
+    stars: s32
+    blocking: s32
+    paths: s32
+}
+
+IslandCount :: (game: *IslandGame) -> IslandTally {
+    tally: IslandTally
+    for at: cast(s32)0..ISLAND_CELLS - 1 {
+        object := game.objects[at]
+        if object == 65 { tally.stars += 1 }
+        if object == 52 || object == 54 || object == 58 || object == 71 || object == 72 || object == 89 || object == 90 { tally.blocking += 1 }
+        if game.terrain[at] == 43 { tally.paths += 1 }
+    }
+    return tally
+}
+
+// The most meaningful event first; a plain step is quiet.
+IslandEvent :: (before: *IslandGame, after: *IslandGame) -> s32 {
+    if after.won && !before.won { return ISLAND_EVENT_WON }
+    was := IslandCount(before); now := IslandCount(after)
+    // A crate sinks into a floor, the raft glides, ice breaks or a sea star sinks.
+    if now.stars < was.stars { return ISLAND_EVENT_SPLASH }
+    for at: cast(s32)0..ISLAND_CELLS - 1 {
+        if (before.terrain[at] == 0) != (after.terrain[at] == 0) { return ISLAND_EVENT_SPLASH }
+    }
+    if IslandRemaining(after) < IslandRemaining(before) { return ISLAND_EVENT_GOAL }
+    if now.blocking < was.blocking || now.paths > was.paths { return ISLAND_EVENT_GATE }
+    // A teleporter or a spring flower carries Shovey further than one step.
+    if after.player != before.player && after.player != IslandNeighbor(before.player, after.direction) { return ISLAND_EVENT_TELEPORT }
+    if after.keys > before.keys || after.seeds > before.seeds || after.crabs > before.crabs ||
+    after.ammunition > before.ammunition || after.coins > before.coins || after.pearls > before.pearls { return ISLAND_EVENT_PICKUP }
+    if after.ammunition < before.ammunition { return ISLAND_EVENT_SHOT }
+    // Pushed, rolled, grown or turned: whatever stood where Shovey stepped.
+    at := IslandNeighbor(before.player, after.direction)
+    if at < 0 { return ISLAND_EVENT_NONE }
+    object := before.objects[at]
+    if IslandPushable(object) || object == 70 || object == 111 || object == 112 || (object >= 117 && object <= 120) { return ISLAND_EVENT_PUSH }
+    return ISLAND_EVENT_NONE
+}
+
+ISLAND_SAVE_SIZE :: 1482
+island_save_bytes: [ISLAND_SAVE_SIZE]u8;
+
+IslandWriteHex :: (value: s32, at: s32, count: s32) {
+    alphabet := "0123456789abcdef"
+    for index: cast(s32)0..count - 1 {
+        island_save_bytes[at + index] = alphabet[(value >> ((count - index - 1) * 4)) & 15]
+    }
+}
+
+// Borrowed until the next save call. Hosts must copy a record before returning.
+IslandSave :: (game: *IslandGame) -> string {
+    island_save_bytes[0] = #char "I"; island_save_bytes[1] = #char "1"
+    IslandWriteHex(game.level, 2, 2)
+    IslandWriteHex(game.player, 4, 2)
+    IslandWriteHex(game.direction, 6, 2)
+    IslandWriteHex(game.moves, 8, 8)
+    counters: [10]s32 = .[game.keys, game.seeds, game.crabs, game.crabs_due, game.pearls,
+    game.ammunition, game.coins, game.coins_due, game.towers_due, game.number_count]
+    for index: cast(s32)0..9 { IslandWriteHex(counters[index], 16 + index * 2, 2) }
+    IslandWriteHex(ifx game.won then 1 else 0, 36, 2)
+    IslandWriteHex(ifx game.string_active then 1 else 0, 38, 2)
+    IslandWriteHex(game.path_count, 40, 2)
+    for at: cast(s32)0..ISLAND_CELLS - 1 {
+        IslandWriteHex(game.terrain[at], 42 + at * 4, 2)
+        IslandWriteHex(game.objects[at], 44 + at * 4, 2)
+        IslandWriteHex(game.path[at], 1002 + at * 2, 2)
+    }
+    return TextView(island_save_bytes[:])
+}
+
+IslandRestore :: (game: *IslandGame, text: string) -> bool {
+    if text.count != ISLAND_SAVE_SIZE || text[:2] != "I1" { return false }
+    restored: IslandGame
+    if !IslandLoad(*restored, IslandByte(text, 2)) { return false }
+    restored.player = IslandByte(text, 4)
+    restored.direction = IslandByte(text, 6)
+    if restored.player < 0 || restored.player >= ISLAND_CELLS || restored.direction < 0 || restored.direction > 3 { return false }
+    for index: cast(s32)0..7 {
+        digit := IslandDigit(text[8 + index])
+        if digit < 0 || (index == 0 && digit >= 8) { return false }
+        restored.moves = restored.moves * 16 + digit
+    }
+    counters: [10]s32
+    for index: cast(s32)0..9 {
+        counters[index] = IslandByte(text, 16 + index * 2)
+        if counters[index] < 0 || counters[index] > ISLAND_CELLS { return false }
+    }
+    restored.keys = counters[0]; restored.seeds = counters[1]
+    restored.crabs = counters[2]; restored.crabs_due = counters[3]
+    restored.pearls = counters[4]; restored.ammunition = counters[5]
+    restored.coins = counters[6]; restored.coins_due = counters[7]
+    restored.towers_due = counters[8]; restored.number_count = counters[9]
+    won := IslandByte(text, 36); active := IslandByte(text, 38)
+    restored.path_count = IslandByte(text, 40)
+    if won < 0 || won > 1 || active < 0 || active > 1 || restored.path_count < 0 ||
+    restored.path_count > ISLAND_CELLS || restored.number_count > 5 { return false }
+    restored.won = won == 1; restored.string_active = active == 1
+    if !restored.string_active && restored.path_count != 0 { return false }
+    for at: cast(s32)0..ISLAND_CELLS - 1 {
+        terrain := IslandByte(text, 42 + at * 4)
+        object := IslandByte(text, 44 + at * 4)
+        point := IslandByte(text, 1002 + at * 2)
+        if terrain < 0 || terrain > 48 || object < 0 || object > 124 ||
+        (object > 0 && object < 51) || object == 56 || point < 0 || point >= ISLAND_CELLS { return false }
+        restored.terrain[at] = terrain; restored.objects[at] = object; restored.path[at] = point
+    }
+    // Home, spring, ice-water and the current string endpoint can overlap the
+    // separately drawn player. Fixed scenery cannot become a saved position.
+    object := restored.objects[restored.player]
+    if object != 0 && object != 75 && object != 76 && object != 123 && object != 124 { return false }
+    game.* = restored
+    return true
+}

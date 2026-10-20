@@ -1,0 +1,340 @@
+// The independent Island node draws its two layers with Image.
+// It shares no live state or records with the Classic leaf.
+#import "kryon/session"
+#import "kryon/geometry"
+#import "kryon/drawing_props"
+#import "kryon/text_props"
+#import "kryon/text_align"
+#import "kryon/text_widget"
+#import "kryon/button_props"
+#import "kryon/button_widget"
+#import "kryon/control_props"
+#import "kryon/image_props"
+#import "kryon/image_widget"
+#import "kryon/box_props"
+#import "kryon/box_widget"
+#import "kryon/scroll_props"
+#import "kryon/scroll_widget"
+#import "kryon/joystick"
+#import "kryon/tree"
+#import "std/number_text"
+#import "std/c_string"
+#import "std/text_buffer"
+#import "translations"
+#import "apps/node_types"
+#import "kryon/tile_map"
+#import, file "island_engine.zi";
+#import, file "island_board.zi";
+#import, file "progress.zi";
+#import, file "../island_levels.zi";
+host_api :: #system_library "host_api";
+ReadAppUiHost :: () -> AppUiFrame #foreign host_api;
+AppRecordHost :: (name: string) -> string #foreign host_api;
+SaveAppRecordHost :: (name: string, text: string) -> bool #foreign host_api;
+AppKeyHost :: () -> s32 #foreign host_api;
+// One of the game's own packed sounds; a host without audio answers false.
+AppSoundHost :: (path: string) -> bool #foreign host_api;
+
+island_frame: AppUiFrame;
+island_game: IslandGame;
+island_progress: IslandProgress;
+island_loaded: bool;
+island_selector: bool;
+island_help: bool;
+island_scroll: s32;
+island_help_scroll: s32;
+// Hidden once a keyboard is used; shown again when the island is touched.
+island_joystick_hidden: bool = true;
+island_save_failed: bool;
+island_language: string;
+island_previews: [176][96]u8;
+island_names: [ISLAND_PICTURES]string;
+island_heading: [512]u8;
+island_instructions: [16384]u8;
+
+ISLAND_LOCK :: "S1.8rr:M6 10H18V21H6ZM8 10V7A4 4 0 0 1 16 7V10M12 14V17"
+ISLAND_CHECK :: "S2rr:M5 12L10 17L20 6"
+ISLAND_PLAY :: "F:M8 5L19 12L8 19Z"
+
+IslandText :: (key: string) -> string {
+    text := GameLocaleText(island_language, key)
+    return ifx text != "" then text else key
+}
+
+IslandInstructions :: () -> string {
+    keys: [16]string = .["island_help_1", "island_help_2", "island_help_3", "island_help_4",
+    "island_help_5", "island_help_6", "island_help_7", "island_help_8", "island_help_9", "island_help_10",
+    "island_help_11", "island_help_12", "island_help_13", "island_help_14", "island_help_15", "island_help_16"]
+    bytes: Vec(u8)
+    for at: cast(s32)0..15 {
+        if at > 0 && island_language != "ja" && island_language != "zh" { BuilderPrint(*bytes, " ") }
+        BuilderPrint(*bytes, "%", IslandText(keys[at]))
+    }
+    unused CopyCString(TextView(VecSlice(bytes, 0, bytes.count)), island_instructions[:])
+    VecFree(bytes)
+    return TextUntilNul(island_instructions[:])
+}
+
+IslandFill :: (key: u64, bounds: Rectangle, color: Color, radius: float32 = 0.0) {
+    unused Box(island_frame.session, BoxProps.{.key = key, .bounds = bounds, .fill = color, .radius = radius})
+}
+
+IslandCaption :: (key: u64, bounds: Rectangle, text: string, font: s32 = 16, center: bool = false) {
+    Text(island_frame.session, TextProps.{.key = key, .bounds = bounds, .text = text, .font = font,
+            .wrap = TextWrap.TextWrapAuto, .align = ifx center then TextAlign.TextAlignCenter else TextAlign.TextAlignStart,
+            .vertical_align = TextAlign.TextAlignCenter})
+}
+
+IslandControl :: (id: s32, bounds: Rectangle, label: string, disabled: bool = false, detail: string = "") -> bool {
+    return Button(island_frame.session, ButtonProps.{.key = cast(u64)id, .id = id, .bounds = bounds,
+            .label = label, .detail = detail, .disabled = disabled, .fit_content = true,
+            .emphasis = ButtonEmphasis.ButtonEmphasisSoft}) != 0
+}
+
+IslandSpritePaths :: () {
+    for number: cast(s32)1..175 {
+        bytes: Vec(u8)
+        BuilderPrint(*bytes, "assets/shovey-island/levels/%.png", number)
+        unused CopyCString(TextView(VecSlice(bytes, 0, bytes.count)), island_previews[number][:])
+        VecFree(bytes)
+    }
+}
+
+IslandTileText :: (kind: s32) -> string {
+    if kind == 56 { return "Shovey" }
+    if kind == 75 { return IslandText("island_home") }
+    if kind == 57 { return IslandText("island_crate") }
+    if kind == 60 { return IslandText("island_key") }
+    if kind == 64 { return IslandText("island_seed") }
+    if kind == 66 || kind == 73 || kind == 74 { return IslandText("island_crab") }
+    if kind == 80 { return IslandText("island_ammo") }
+    if kind == 81 || kind == 94 || kind == 95 { return IslandText("island_pearl") }
+    if kind == 82 || kind == 58 || kind == 90 { return IslandText("island_coin") }
+    if kind == 70 || kind == 71 { return IslandText("island_coconut") }
+    if kind == 37 || kind == 39 { return IslandText("island_portal") }
+    if kind == 122 || kind == 123 || kind == 124 { return IslandText("island_string") }
+    return IslandText(ifx kind >= 51 then "island_object" else "island_terrain")
+}
+
+// Each picture number's description, for the island's pictures.
+IslandNames :: () {
+    for number: cast(s32)0..ISLAND_TILES - 1 { island_names[number] = IslandTileText(number) }
+    for number: cast(s32)ISLAND_TILES..ISLAND_PICTURES - 1 { island_names[number] = "Shovey" }
+}
+
+IslandImage :: (key: u64, path: string, bounds: Rectangle, label: string) {
+    Image(island_frame.session, ImageProps.{.key = key, .asset_path = path, .bounds = bounds,
+            .alt_text = label, .fit = ImageFit.ImageFitContain, .smooth = true})
+}
+
+IslandHeading :: () -> string {
+    bytes: Vec(u8)
+    BuilderPrint(*bytes, "% % / %", IslandText("island_level"), island_game.level, IslandLevelCount())
+    unused CopyCString(TextView(VecSlice(bytes, 0, bytes.count)), island_heading[:])
+    VecFree(bytes)
+    return TextUntilNul(island_heading[:])
+}
+
+IslandRemember :: (advance: bool = true) {
+    IslandRecordWin(*island_progress, *island_game)
+    if advance { unused IslandContinue(*island_progress, *island_game) }
+    island_save_failed = !SaveAppRecordHost("campaign", IslandCampaignSave(*island_progress, *island_game))
+}
+
+IslandOpenLevel :: (level: s32) {
+    if !IslandSelectLevel(*island_progress, *island_game, level) { return }
+    island_selector = false; island_help = false
+    IslandRemember(false)
+}
+
+// Moves and plays what the move did.
+IslandAct :: (direction: s32) -> bool {
+    before := island_game
+    changed := IslandMove(*island_game, direction)
+    event := ISLAND_EVENT_NONE
+    if changed { event = IslandEvent(*before, *island_game) }
+    if event != ISLAND_EVENT_NONE {
+        sounds: [9]string = .["", "assets/shovey-island/sounds/push.wav", "assets/shovey-island/sounds/splash.wav",
+        "assets/shovey-island/sounds/goal.wav", "assets/shovey-island/sounds/pickup.wav", "assets/shovey-island/sounds/gate.wav",
+        "assets/shovey-island/sounds/teleport.wav", "assets/shovey-island/sounds/shot.wav", "assets/shovey-island/sounds/won.wav"]
+        unused AppSoundHost(sounds[event])
+    }
+    return changed
+}
+
+IslandContinueGame :: () {
+    unused IslandContinue(*island_progress, *island_game)
+    island_selector = false; island_help = false
+    IslandRemember(false)
+}
+
+IslandLevels :: (width: float32, top: float32, bottom: float32) {
+    IslandCaption(81001, Rectangle.{16.0, top + 12.0, width - 156.0, 44.0}, IslandText("island_levels"), 24)
+    if IslandControl(81002, Rectangle.{width - 132.0, top + 12.0, 116.0, 44.0}, IslandText("island_continue")) { IslandContinueGame(); return }
+    columns: s32 = ifx width >= 440.0 then 2 else 1
+    gap: float32 = 12.0
+    cell_width := (width - 32.0 - gap * cast(float32)(columns - 1)) / cast(float32)columns
+    cell_height := cell_width * 0.6 + 64.0
+    rows := (IslandLevelCount() + columns - 1) / columns
+    scroll := Scroll(island_frame.session, ScrollProps.{.key = cast(u64)81003,
+            .bounds = Rectangle.{16.0, top + 72.0, width - 32.0, bottom - top - 88.0},
+            .content_height = cast(s32)(cast(float32)rows * (cell_height + gap)), .scroll_offset = island_scroll})
+    island_scroll = scroll.scroll_offset
+    selected: s32
+    if scroll.opened {
+        for number: cast(s32)1..IslandLevelCount() {
+            index := number - 1
+            cell := Rectangle.{scroll.content.x + cast(float32)(index % columns) * (cell_width + gap),
+                scroll.content.y + cast(float32)(index / columns) * (cell_height + gap), cell_width, cell_height}
+            if cell.y + cell.height < scroll.viewport.y || cell.y > scroll.viewport.y + scroll.viewport.height { continue }
+            unlocked := IslandLevelUnlocked(*island_progress, number)
+            complete := island_progress.completed[index]
+            key := cast(u64)(90000 + number * 5000)
+            if unlocked {
+                IslandImage(key + cast(u64)1, TextUntilNul(island_previews[number][:]),
+                    Rectangle.{cell.x + 6.0, cell.y + 6.0, cell.width - 12.0, (cell.width - 12.0) * 0.6}, IslandLevelName(number))
+            }
+            digits: [24]u8
+            label := FormatInteger(cast(s64)number, digits[:])
+            if Button(island_frame.session, ButtonProps.{.key = key + cast(u64)4000, .id = 82000 + number,
+                    .bounds = cell, .label = label, .detail = IslandLevelName(number), .invisible = true, .disabled = !unlocked}) != 0 { selected = number }
+            name_y := cell.y + cell.height - 48.0
+            IslandCaption(key + cast(u64)4001, Rectangle.{cell.x + 8.0, name_y, cell.width - 48.0, 40.0}, label, 18)
+            IslandCaption(key + cast(u64)4002, Rectangle.{cell.x + 40.0, name_y, cell.width - 80.0, 40.0}, IslandLevelName(number), 14)
+            unused Button(island_frame.session, ButtonProps.{.key = key + cast(u64)4003,
+                    .bounds = Rectangle.{cell.x + cell.width - 36.0, name_y + 6.0, 28.0, 28.0},
+                    .label = IslandText(ifx !unlocked then "island_locked" else ifx complete then "island_completed" else "island_available"),
+                    .icon_shape = ifx !unlocked then ISLAND_LOCK else ifx complete then ISLAND_CHECK else ISLAND_PLAY,
+                    .icon_only = true, .disabled = true, .fit_content = true, .emphasis = ButtonEmphasis.ButtonEmphasisGhost})
+        }
+        unused End(island_frame.session)
+    }
+    if selected > 0 { IslandOpenLevel(selected) }
+}
+
+IslandInventory :: (bounds: Rectangle) {
+    values: [6]s32 = .[island_game.keys, island_game.seeds, island_game.crabs, island_game.ammunition, island_game.coins, island_game.pearls]
+    sprites: [6]s32 = .[60, 64, 66, 80, 82, 81]
+    cell := bounds.width / 6.0
+    for at: cast(s32)0..5 {
+        if values[at] <= 0 { continue }
+        x := bounds.x + cast(float32)at * cell
+        IslandImage(cast(u64)(84000 + at * 2), IslandPictureFile(sprites[at]), Rectangle.{x, bounds.y, 24.0, 24.0}, IslandTileText(sprites[at]))
+        digits: [24]u8
+        IslandCaption(cast(u64)(84001 + at * 2), Rectangle.{x + 26.0, bounds.y, cell - 26.0, 24.0}, FormatInteger(cast(s64)values[at], digits[:]), 14)
+    }
+}
+
+IslandFrame :: (language: string) {
+    island_frame = ReadAppUiHost()
+    island_language = language
+    if !island_loaded {
+        IslandSpritePaths()
+        if !IslandCampaignRestore(*island_progress, *island_game, AppRecordHost("campaign")) {
+            unused IslandLoad(*island_game, 1)
+            island_progress = IslandProgressNew()
+        }
+        if IslandOpenLatest(*island_progress, *island_game) { IslandRemember(false) }
+        island_loaded = true
+    }
+    width := cast(float32)island_frame.width
+    top := cast(float32)island_frame.top
+    bottom := cast(float32)(island_frame.height - island_frame.bottom)
+
+    // Island remains private while its boards and artwork are finished. The
+    // public entry stays visible, but its only action is this status screen.
+    IslandFill(90000, Rectangle.{0.0, top, width, bottom - top}, Color.{186, 226, 226, 255})
+    preview_width := ifx width < 640.0 then width - 32.0 else 640.0
+    preview_height := preview_width * 0.6
+    IslandImage(90001, "assets/shovey-island/preview.png",
+            Rectangle.{(width - preview_width) / 2.0, top + 72.0, preview_width, preview_height}, "Shovey Island")
+    IslandCaption(90002, Rectangle.{16.0, top + 20.0, width - 32.0, 40.0}, IslandText("island_coming_title"), 30, true)
+    IslandCaption(90003, Rectangle.{32.0, top + 88.0 + preview_height, width - 64.0, 72.0}, IslandText("island_coming_body"), 17, true)
+    unused IslandControl(90004, Rectangle.{width / 2.0 - 100.0, bottom - 68.0, 200.0, 44.0},
+            IslandText("island_coming_button"), true)
+    return
+
+    if island_selector { IslandLevels(width, top, bottom); return }
+    key := AppKeyHost()
+    if key == 72 { island_help = !island_help }
+    if key == 256 { island_help = false }
+    // A compact bar: the island takes the rest of the screen.
+    if IslandControl(80005, Rectangle.{8.0, top + 6.0, 88.0, 40.0}, IslandText("island_levels")) { island_selector = true; return }
+    IslandCaption(80004, Rectangle.{104.0, top + 6.0, width - 312.0, 40.0}, IslandHeading(), 18, true)
+    if IslandControl(80015, Rectangle.{width - 200.0, top + 6.0, 96.0, 40.0}, IslandText("island_restart")) { IslandOpenLevel(island_game.level) }
+    if IslandControl(80006, Rectangle.{width - 100.0, top + 6.0, 92.0, 40.0}, IslandText("island_help")) { island_help = !island_help }
+    if island_help {
+        scroll := Scroll(island_frame.session, ScrollProps.{.key = cast(u64)80008,
+                .bounds = Rectangle.{16.0, top + 56.0, width - 32.0, bottom - top - 64.0},
+                .content_height = 1600, .scroll_offset = island_help_scroll})
+        island_help_scroll = scroll.scroll_offset
+        if scroll.opened {
+            Text(island_frame.session, TextProps.{.key = cast(u64)80009,
+                    .bounds = Rectangle.{scroll.content.x, scroll.content.y, scroll.content.width - 12.0, 1500.0},
+                    .text = IslandInstructions(), .font = 16, .wrap = TextWrap.TextWrapAuto})
+            unused End(island_frame.session)
+        }
+        return
+    }
+    changed: bool
+    before := island_game.direction
+    keyed: s32 = -1
+    if key == 263 || key == 65 { keyed = 0 }
+    if key == 265 || key == 87 { keyed = 1 }
+    if key == 262 || key == 68 { keyed = 2 }
+    if key == 264 || key == 83 { keyed = 3 }
+    // A keyboard player does not need the on-screen stick until they touch.
+    if keyed >= 0 { island_joystick_hidden = true; changed = IslandAct(keyed) }
+    if key == 82 { IslandOpenLevel(island_game.level) }
+    if changed { IslandRemember(); changed = false; before = island_game.direction }
+    // The island fills the space under the bar, in portrait or landscape.
+    status_y := top + 52.0
+    area := Rectangle.{8.0, status_y + 52.0, width - 16.0, bottom - status_y - 60.0}
+    IslandNames()
+    grid := IslandBoard(island_frame.session, *island_game, area, cast(u64)85000, island_names[:])
+    board := grid.board
+    status := IslandLevelName(island_game.level)
+    status_icon := ""
+    if island_game.won {
+        status = IslandText("island_finale")
+        status_icon = "S2rr:M5 12L10 17L19 7"
+    } else if IslandRemaining(*island_game) == 0 {
+        status = IslandText("island_ready")
+        status_icon = "S2rr:M6 10H18V21H6ZM8 10V6L10 4H14L16 6V10"
+    }
+    if status_icon != "" {
+        unused Button(island_frame.session, ButtonProps.{.key = cast(u64)80021, .id = 80021,
+                .bounds = Rectangle.{width / 2.0 - 20.0, status_y - 8.0, 40.0, 40.0},
+                .label = status, .icon_shape = status_icon, .icon_only = true,
+                .disabled = true, .fit_content = true, .emphasis = ButtonEmphasis.ButtonEmphasisGhost})
+    } else {
+        IslandCaption(80010, Rectangle.{16.0, status_y, width - 32.0, 24.0}, status, 15, true)
+    }
+    IslandInventory(Rectangle.{16.0, status_y + 24.0, width - 32.0, 24.0})
+    if island_save_failed { IslandCaption(80016, Rectangle.{16.0, bottom - 28.0, width - 32.0, 24.0}, IslandText("island_save_failed"), 13, true) }
+    disabled := island_game.won
+    // Touch: swipe on the island to step, or tap a cell to step towards it.
+    gesture := SwipeArea(island_frame.session, SwipeAreaProps.{.key = cast(u64)89000, .id = 89000, .bounds = board,
+            .label = IslandText("island_controls"), .now = island_frame.now, .min_distance = grid.cell * 0.6, .disabled = disabled})
+    if gesture.down { island_joystick_hidden = false }
+    step := gesture.swiped
+    if gesture.tapped {
+        cell := TileMapCellAt(grid, gesture.x, gesture.y)
+        if cell >= 0 {
+            step = TouchDirection(cast(float32)(cell % ISLAND_WIDTH - island_game.player % ISLAND_WIDTH),
+                cast(float32)(cell / ISLAND_WIDTH - island_game.player / ISLAND_WIDTH), 1.0)
+        }
+    }
+    if !island_joystick_hidden && !disabled {
+        size := ifx width < bottom - top then width else bottom - top
+        size *= 0.3
+        if size < 104.0 { size = 104.0 }
+        if size > 180.0 { size = 180.0 }
+        stick := Joystick(island_frame.session, JoystickProps.{.key = cast(u64)80020, .id = 80020,
+                .bounds = Rectangle.{14.0, bottom - size - 14.0, size, size},
+                .label = IslandText("island_controls"), .now = island_frame.now})
+        if stick.step { step = stick.direction }
+    }
+    if step >= 0 { changed = IslandAct(step) || changed }
+    if changed || before != island_game.direction { IslandRemember() }
+}

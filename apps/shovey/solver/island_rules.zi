@@ -1,0 +1,254 @@
+// Island's side of the Ziran solver (solver.zi). Every rule runs in the
+// shipped engine; this module only loads a board, describes an IslandGame as
+// a key for the searches and gives them a goal estimate. It is the Ziran
+// counterpart of tools/solver/island_api.zi, without the C boundary.
+//
+// Every Island action is an arrow press: trades, slingshots, leaf changers,
+// strings, rafts and springs all start from IslandMove.
+//
+// A key lists the behavior-relevant fields that differ from a reference
+// game, three bytes each: the field's number (high, low byte) and its value.
+//   0..239    terrain
+//   240..479  objects
+//   480..719  string path; entries past path_count are never read and count as 0
+//   721..731  keys, seeds, crabs, crabs_due, pearls, ammunition, coins,
+//             coins_due, towers_due, number_count, path_count
+//   732       1 while a string is active, plus 2 when won
+// Shovey's cell is the walker, which the searches keep beside the key. Level
+// and the spike, plate and water-switch cells are fixed by the board; facing
+// and the move counter are cosmetic and stay out.
+#import, file "../island/island_engine.zi";
+
+ISLAND_COUNTER_FIELD :: 721
+
+solve_island_initial: IslandGame;
+solve_island_root: IslandGame;
+solve_island_base: IslandGame;
+solve_island_game: IslandGame;
+// Octopuses in the base, the root and the loaded board: one follows every
+// step, so no step is plain while one is on the board.
+solve_island_octopus: s32;
+solve_island_root_octopus: s32;
+solve_island_initial_octopus: s32;
+// Work done, in units of about a hundred engine statements.
+solve_island_work: s64;
+
+// Loads a board of 960 hex digits. False when the engine rejects it.
+SolveIslandLoad :: (data: string) -> bool {
+    if !IslandLoadData(*solve_island_initial, 0, data) { return false }
+    solve_island_initial_octopus = SolveIslandOctopuses(*solve_island_initial)
+    SolveIslandSetRoot(*solve_island_initial)
+    return true
+}
+
+SolveIslandOctopuses :: (game: *IslandGame) -> s32 {
+    count: s32 = 0
+    for at: cast(s32)0..ISLAND_CELLS - 1 {
+        if game.objects[at] == 114 { count += 1 }
+    }
+    return count
+}
+
+// Keys from now on are differences from game; the base becomes game.
+SolveIslandSetRoot :: (game: *IslandGame) {
+    solve_island_root = game.*
+    // Path entries past path_count are never read; keys count them as 0.
+    for at: cast(s32)game.path_count..ISLAND_CELLS - 1 { solve_island_root.path[at] = 0 }
+    solve_island_base = solve_island_root
+    solve_island_game = solve_island_root
+    solve_island_root_octopus = SolveIslandOctopuses(game)
+    solve_island_octopus = solve_island_root_octopus
+}
+
+SolveIslandEntry :: (out: []u8, length: s32, field: s32, value: s32) -> s32 {
+    if length < 0 || value < 0 || value > 255 || length + 3 > cast(s32)out.count { return -1 }
+    out[length] = cast(u8)(field >> 8)
+    out[length + 1] = cast(u8)(field & 255)
+    out[length + 2] = cast(u8)value
+    return length + 3
+}
+
+SolveIslandPath :: (game: *IslandGame, at: s32) -> s32 {
+    return ifx at < game.path_count then game.path[at] else 0
+}
+
+SolveIslandFlags :: (game: *IslandGame) -> s32 {
+    return (ifx game.string_active then 1 else 0) + (ifx game.won then 2 else 0)
+}
+
+// Writes the key of game against reference into out. Returns its length,
+// or -1 when a value does not fit its byte or out is too small.
+SolveIslandKey :: (game: *IslandGame, reference: *IslandGame, out: []u8) -> s32 {
+    length: s32 = 0
+    for at: cast(s32)0..ISLAND_CELLS - 1 {
+        if game.terrain[at] != reference.terrain[at] || game.objects[at] != reference.objects[at] {
+            if game.terrain[at] != reference.terrain[at] { length = SolveIslandEntry(out, length, at, game.terrain[at]) }
+            if game.objects[at] != reference.objects[at] {
+                length = SolveIslandEntry(out, length, ISLAND_CELLS + at, game.objects[at])
+            }
+        }
+    }
+    paths := ifx game.path_count > reference.path_count then game.path_count else reference.path_count
+    for at: cast(s32)0..paths - 1 {
+        point := SolveIslandPath(game, at)
+        if point != SolveIslandPath(reference, at) { length = SolveIslandEntry(out, length, ISLAND_CELLS * 2 + at, point) }
+    }
+    counters: [11]s32 = .[game.keys, game.seeds, game.crabs, game.crabs_due, game.pearls,
+    game.ammunition, game.coins, game.coins_due, game.towers_due, game.number_count, game.path_count]
+    against: [11]s32 = .[reference.keys, reference.seeds, reference.crabs, reference.crabs_due, reference.pearls,
+    reference.ammunition, reference.coins, reference.coins_due, reference.towers_due, reference.number_count, reference.path_count]
+    for index: cast(s32)0..10 {
+        if counters[index] != against[index] { length = SolveIslandEntry(out, length, ISLAND_COUNTER_FIELD + index, counters[index]) }
+    }
+    flags := SolveIslandFlags(game)
+    if flags != SolveIslandFlags(reference) { length = SolveIslandEntry(out, length, 732, flags) }
+    solve_island_work += cast(s64)(5 + paths / 40)
+    return length
+}
+
+// Makes the base the state of key against reference, which holds
+// reference_octopus octopuses, with walker.
+SolveIslandDecode :: (key: string, reference: *IslandGame, reference_octopus: s32, walker: s32) {
+    solve_island_base = reference.*
+    game := *solve_island_base
+    octopus := reference_octopus
+    at: s64 = 0
+    while at + 2 < key.count {
+        field := cast(s32)key[at] * 256 + cast(s32)key[at + 1]
+        value := cast(s32)key[at + 2]
+        at += 3
+        if field < ISLAND_CELLS { game.terrain[field] = value }
+        else if field < ISLAND_CELLS * 2 {
+            cell := field - ISLAND_CELLS
+            if game.objects[cell] == 114 { octopus -= 1 }
+            if value == 114 { octopus += 1 }
+            game.objects[cell] = value
+        } else if field < ISLAND_CELLS * 3 { game.path[field - ISLAND_CELLS * 2] = value }
+        else if field == ISLAND_COUNTER_FIELD { game.keys = value }
+        else if field == ISLAND_COUNTER_FIELD + 1 { game.seeds = value }
+        else if field == ISLAND_COUNTER_FIELD + 2 { game.crabs = value }
+        else if field == ISLAND_COUNTER_FIELD + 3 { game.crabs_due = value }
+        else if field == ISLAND_COUNTER_FIELD + 4 { game.pearls = value }
+        else if field == ISLAND_COUNTER_FIELD + 5 { game.ammunition = value }
+        else if field == ISLAND_COUNTER_FIELD + 6 { game.coins = value }
+        else if field == ISLAND_COUNTER_FIELD + 7 { game.coins_due = value }
+        else if field == ISLAND_COUNTER_FIELD + 8 { game.towers_due = value }
+        else if field == ISLAND_COUNTER_FIELD + 9 { game.number_count = value }
+        else if field == ISLAND_COUNTER_FIELD + 10 { game.path_count = value }
+        else if field == 732 { game.string_active = (value & 1) != 0; game.won = (value & 2) != 0 }
+    }
+    solve_island_octopus = octopus
+    game.player = walker
+    solve_island_game = solve_island_base
+    solve_island_work += cast(s64)(3 + key.count / 12)
+}
+
+SolveIslandReset :: () { solve_island_game = solve_island_base }
+
+// Actions 0..3 press left, up, right, down. True when accepted. A rejected
+// press changes nothing but cosmetic facing: every false return of
+// IslandStep comes before its first write.
+SolveIslandAct :: (action: s32) -> bool {
+    game := *solve_island_game
+    from := game.player
+    accepted := IslandMove(game, action)
+    // A refusal costs little; events scan the island, and a raft or a
+    // spring carries Shovey further.
+    if !accepted { solve_island_work += 1; return false }
+    dx := from % ISLAND_WIDTH - game.player % ISLAND_WIDTH
+    dy := from / ISLAND_WIDTH - game.player / ISLAND_WIDTH
+    solve_island_work += cast(s64)(8 + 2 * ((ifx dx < 0 then -dx else dx) + (ifx dy < 0 then -dy else dy)))
+    if game.water_switch >= 0 { solve_island_work += 16 }
+    return true
+}
+
+SolveIslandWalker :: () -> s32 { return solve_island_game.player }
+
+SolveIslandSetWalker :: (walker: s32) { solve_island_base.player = walker }
+
+// Terrain that does something when Shovey stands on or leaves it: water and
+// rafts, the spike plate, farms, blast spots, portals, ice and the watch plate.
+SolveIslandEventTerrain :: (terrain: s32) -> bool {
+    return terrain == 0 || terrain == 30 || terrain == 32 || terrain == 33 || terrain == 36 ||
+    terrain == 37 || terrain == 38 || terrain == 39 || terrain == 40 || terrain == 41
+}
+
+// The cell a move reaches when it only moves Shovey: an empty, eventless cell
+// beside an eventless one, no climb onto a meadow, no string being laid, no
+// octopus to follow and no spike underfoot. Every event IslandCursor runs
+// then leaves the state as it was. -1 when the engine has to take it.
+SolveIslandPlainStep :: (direction: s32) -> s32 {
+    game := *solve_island_base
+    if solve_island_octopus > 0 || game.string_active { return -1 }
+    at := IslandNeighbor(game.player, direction)
+    if at < 0 || game.objects[at] != 0 || at == game.spike || game.player == game.spike { return -1 }
+    if SolveIslandEventTerrain(game.terrain[at]) || SolveIslandEventTerrain(game.terrain[game.player]) { return -1 }
+    if !IslandRaised(game.terrain[game.player]) && IslandRaised(game.terrain[at]) { return -1 }
+    return at
+}
+
+SolveIslandDistance :: (from: s32, to: s32) -> s32 {
+    dx := from % ISLAND_WIDTH - to % ISLAND_WIDTH; dy := from / ISLAND_WIDTH - to / ISLAND_WIDTH
+    return (ifx dx < 0 then -dx else dx) + (ifx dy < 0 then -dy else dy)
+}
+
+// Distance to the nearest listed cell other than from, or 0 for none.
+SolveIslandNearest :: (from: s32, cells: []s32) -> s32 {
+    best: s32 = -1
+    for cell: cells {
+        if cell == from { continue }
+        distance := SolveIslandDistance(from, cell)
+        if best < 0 || distance < best { best = distance }
+    }
+    return ifx best < 0 then 0 else best
+}
+
+// Finishing a goal must outweigh the longest walk home (at most 28 cells).
+SOLVE_ISLAND_GOAL :: 32
+
+solve_island_pieces: [4][ISLAND_CELLS]s32;
+solve_island_targets: [ISLAND_CELLS]s32;
+solve_island_goals: [ISLAND_CELLS]s32;
+solve_island_homes: [ISLAND_CELLS]s32;
+
+// Search guidance only, never a rule: SOLVE_ISLAND_GOAL per unfinished goal
+// of IslandRemaining, the distance from each empty statue or barrel target
+// to the nearest free matching piece, 8 per pickup still on the board, then
+// Shovey's distance to the nearest open goal or, with none left, to the cell
+// below a home (home is entered moving up).
+SolveIslandEstimate :: () -> s32 {
+    game := *solve_island_game
+    piece_count: [4]s32
+    target_count: s32 = 0
+    goal_count: s32 = 0
+    home_count: s32 = 0
+    remaining := IslandRemaining(game)
+    estimate := remaining * SOLVE_ISLAND_GOAL
+    for at: cast(s32)0..ISLAND_CELLS - 1 {
+        terrain := game.terrain[at]; object := game.objects[at]
+        if object == 0 && (terrain < 25 || terrain > 28) && terrain != 47 && terrain != 48 { continue }
+        // Kinds 0..2 are statues 61..63 for targets 26..28; 3 is barrel 116 for 25.
+        kind: s32 = -1
+        if object >= 61 && object <= 63 && terrain != object - 35 { kind = object - 61 }
+        if object == 116 && terrain != 25 { kind = 3 }
+        if kind >= 0 { solve_island_pieces[kind][piece_count[kind]] = at; piece_count[kind] += 1 }
+        open := (terrain >= 26 && terrain <= 28 && object != terrain + 35) || (terrain == 25 && object != 116)
+        if open { solve_island_targets[target_count] = at; target_count += 1 }
+        if open || (terrain == 47 && object != 111) || (terrain == 48 && object != 112) ||
+        object == 73 || object == 65 || (object >= 101 && object <= 105) ||
+        object == 97 || object == 98 || object == 114 || IslandPickup(object) {
+            solve_island_goals[goal_count] = at; goal_count += 1
+        }
+        if IslandPickup(object) { estimate += 8 }
+        if object == 75 && at + ISLAND_WIDTH < ISLAND_CELLS { solve_island_homes[home_count] = at + ISLAND_WIDTH; home_count += 1 }
+    }
+    for index: cast(s32)0..target_count - 1 {
+        at := solve_island_targets[index]
+        kind: s32 = ifx game.terrain[at] == 25 then 3 else game.terrain[at] - 26
+        estimate += SolveIslandNearest(at, solve_island_pieces[kind][0:piece_count[kind]])
+    }
+    if goal_count > 0 { estimate += SolveIslandNearest(game.player, solve_island_goals[0:goal_count]) }
+    else { estimate += SolveIslandNearest(game.player, solve_island_homes[0:home_count]) }
+    solve_island_work += cast(s64)(20 + goal_count / 8)
+    return estimate
+}

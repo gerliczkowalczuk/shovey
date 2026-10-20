@@ -1,0 +1,144 @@
+[island_restart]
+다시 시작
+---
+[island_help]
+도움말
+---
+[island_continue]
+계속하기
+---
+[island_up]
+위
+---
+[island_down]
+아래
+---
+[island_left]
+왼쪽
+---
+[island_right]
+오른쪽
+---
+[island_save_failed]
+저장하지 못했습니다. 한 번 더 움직여 다시 시도하세요.
+---
+[island_home]
+집
+---
+[island_crate]
+상자
+---
+[island_key]
+열쇠
+---
+[island_ammo]
+투사체
+---
+[island_portal]
+순간이동 장치
+---
+[island_locked]
+잠김
+---
+[island_completed]
+완료
+---
+[island_available]
+플레이 가능
+---
+[island_level]
+섬
+---
+[island_levels]
+섬 선택
+---
+[island_seed]
+씨앗
+---
+[island_crab]
+게
+---
+[island_pearl]
+진주
+---
+[island_coin]
+동전
+---
+[island_coconut]
+코코넛
+---
+[island_string]
+실
+---
+[island_object]
+물체
+---
+[island_terrain]
+지형
+---
+[island_controls]
+방향키 / WASD · R 다시 시작 · H 도움말
+---
+[island_ready]
+목표 완료. 집에 아래쪽에서 들어가세요.
+---
+[island_finale]
+모든 섬을 완료했습니다!
+---
+[island_help_1]
+방향키, WASD, 방향 버튼 또는 인접한 칸으로 이동합니다.
+---
+[island_help_2]
+풀밭에서 내려갈 수 있지만 올라갈 수는 없습니다. 물체는 한
+---
+[island_help_3]
+칸씩 밀 수 있고 같은 색의 조각상은 함께
+---
+[island_help_4]
+움직입니다. 조각상, 통, 꽃을 알맞은 목표에 놓으세요. 상자를 물에
+---
+[island_help_5]
+빠뜨리면 다리가 되고 별은 물에 가라앉혀 없앱니다. 열쇠로
+---
+[island_help_6]
+보물 상자를 열고, 아기 게는 어미에게 아래쪽에서 돌려주며, 해적에게는
+---
+[island_help_7]
+왼쪽에서 접근합니다. 진주는 탑을 채웁니다. 씨앗을 심고 우물에서
+---
+[island_help_8]
+병에 물을 담아 심은 밭에 물을 주세요. 스프링으로 뛰고
+---
+[island_help_9]
+뗏목으로 빈 물길을 건넙니다. 얼음은 Shovey가 밟으면 깨집니다. 발판은
+---
+[island_help_10]
+가시를 숨기거나 길을 드러냅니다. 코코넛을 구멍이나 표시된 목표로
+---
+[island_help_11]
+굴리세요. 탄약이 있으면 새총에 아래쪽에서 접근해 쏘며 나뭇잎이 탄환의
+---
+[island_help_12]
+방향을 바꿉니다. 숫자 돌은 순서대로 밀고 색깔 조개는
+---
+[island_help_13]
+모두 노란색으로 바꾸세요. 실 표시를 연결하면 경로에 있는 꽃의
+---
+[island_help_14]
+색이 뒤집힙니다. 문어는 우물까지 따라오지만 실을 잇는 동안에는
+---
+[island_help_15]
+멈춥니다. 목표를 마친 뒤 집에 아래쪽에서 들어가세요. 이기면 다음
+---
+[island_help_16]
+섬이 자동으로 시작됩니다. 열린 섬을 선택하면 항상 처음부터 시작합니다.
+---
+
+[island_coming_title]
+곧 공개
+
+[island_coming_body]
+Shovey Island을 계속 다듬고 있어요. 모든 섬이 완벽해지면 돌아옵니다.
+
+[island_coming_button]
+곧 공개
