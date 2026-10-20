@@ -320,16 +320,17 @@ IslandFrame :: (language: string) {
     if island_save_failed { IslandCaption(80016, Rectangle.{16.0, bottom - 28.0, width - 32.0, 24.0}, IslandText("island_save_failed"), 13, true) }
     disabled := island_game.won
     // Touch: swipe anywhere under the bar to step, or tap a cell to step
-    // towards it. The stick comes after, so it stays on top.
+    // towards it; hold either to keep walking. The stick comes after, so it
+    // stays on top.
     play := Rectangle.{0.0, top + 52.0, width, bottom - top - 52.0}
     gesture := SwipeArea(island_frame.session, SwipeAreaProps.{.key = cast(u64)89000, .id = 89000, .bounds = play,
-            .label = IslandText("island_controls"), .now = island_frame.now, .min_distance = grid.cell * 0.6, .disabled = disabled})
+            .label = IslandText("island_controls"), .now = island_frame.now, .min_distance = grid.cell * 0.6, .repeat_seconds = 0.16, .disabled = disabled})
     joystick_allowed := ControlsJoystickAllowed()
     if !joystick_allowed || ControlsSetting() == CONTROLS_OFF { island_joystick_hidden = true }
     if joystick_allowed && (ControlsSetting() == CONTROLS_ON || controls_touch) { island_joystick_hidden = false }
     if gesture.down && joystick_allowed { island_joystick_hidden = false }
     step := BoardEngineDirection(gesture.swiped, landscape)
-    if gesture.tapped {
+    if gesture.tapped || gesture.held {
         cell := TileMapCellAt(grid, gesture.x, gesture.y)
         cell = BoardLogicalIndex(cell, landscape)
         if cell >= 0 {

@@ -1,5 +1,9 @@
 # Shovey Island changelog
 
+## [0.4.4] - 2026-10-20
+
+- Hold a press or touch on the board to keep walking.
+
 ## [0.4.3] - 2026-10-20
 
 - Use Classic's original round green player in every direction and preview.
