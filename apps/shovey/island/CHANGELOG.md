@@ -1,5 +1,10 @@
 # Shovey Island changelog
 
+## [0.4.3] - 2026-10-20
+
+- Use Classic's original round green player in every direction and preview.
+- Keep Inner Breeze's bottom navigation visible while playing.
+
 ## [0.4.2] - 2026-10-20
 
 - Every screen keeps Shovey's own slate, stone and green look, whatever app it runs in.
