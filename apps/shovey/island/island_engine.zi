@@ -3,8 +3,8 @@
 #import "text_buffer"
 #import, file "../island_levels.zi";
 
-ISLAND_WIDTH :: 20
-ISLAND_HEIGHT :: 12
+ISLAND_WIDTH :: 12
+ISLAND_HEIGHT :: 20
 ISLAND_CELLS :: 240
 
 IslandGame :: struct {
@@ -170,7 +170,7 @@ IslandBombs :: (game: *IslandGame) {
                 if neighbor < 0 { continue }
                 object := game.objects[neighbor]
                 // Only the north blast removes a crate.
-                if object == 54 || (direction == 1 && object == 57) { game.objects[neighbor] = 0 }
+                if object == 54 || (direction == 2 && object == 57) { game.objects[neighbor] = 0 }
             }
         }
     }
@@ -378,17 +378,17 @@ IslandPush :: (game: *IslandGame, from: s32, direction: s32) -> bool {
 
 IslandTrade :: (game: *IslandGame, at: s32, direction: s32) -> bool {
     object := game.objects[at]
-    if object == 58 && direction == 1 && game.keys > 0 {
+    if object == 58 && direction == 2 && game.keys > 0 {
         game.keys -= 1; game.coins += 1; game.objects[at] = 59
         return true
     }
-    if object == 73 && direction == 1 && game.crabs > 0 {
+    if object == 73 && direction == 2 && game.crabs > 0 {
         game.crabs_due -= game.crabs
         game.crabs = 0
         if game.crabs_due == 0 { game.objects[at] = 74 }
         return true
     }
-    if object == 90 && direction == 2 && game.coins > 0 {
+    if object == 90 && direction == 3 && game.coins > 0 {
         game.coins_due -= game.coins
         game.coins = 0
         if game.coins_due == 0 { game.objects[at] = 0 }
@@ -458,7 +458,7 @@ IslandCoconut :: (game: *IslandGame, at: s32, direction: s32) -> bool {
 IslandShoot :: (game: *IslandGame, slingshot: s32) -> bool {
     if game.ammunition == 0 { return false }
     game.ammunition -= 1
-    direction: s32 = 1
+    direction: s32 = 2
     turns: s32 = 0
     at := IslandNeighbor(slingshot, direction)
     // A finite board and an eleven-turn limit bound every ray.
@@ -486,14 +486,14 @@ IslandStep :: (game: *IslandGame, direction: s32) -> bool {
     at := IslandNeighbor(game.player, direction)
     if at < 0 { return false }
     object := game.objects[at]
-    if object == 75 && direction == 1 {
+    if object == 75 && direction == 2 {
         game.player = at
         IslandCursor(game, direction)
         game.won = IslandRemaining(game) == 0
         return true
     }
     if IslandTrade(game, at, direction) { return true }
-    if object == 83 && direction == 1 { return IslandShoot(game, at) }
+    if object == 83 && direction == 2 { return IslandShoot(game, at) }
     if object >= 117 && object <= 120 {
         game.objects[at] = 116 + ((direction + 3) % 4 + 1)
         for point: cast(s32)0..ISLAND_CELLS - 1 {

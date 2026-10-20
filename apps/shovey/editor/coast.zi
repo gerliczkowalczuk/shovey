@@ -21,11 +21,11 @@ CoastMeadowLike :: (terrain: s32) -> bool { return CoastMeadow(terrain) || terra
 
 // The terrain beside at in a direction (left, up, right, down), or -1 off the board.
 CoastNeighbor :: (terrain: []u8, at: s32, direction: s32) -> s32 {
-    x := at % 20; y := at / 20
+    x := at % 12; y := at / 12
     if direction == 0 { return ifx x > 0 then cast(s32)terrain[at - 1] else -1 }
-    if direction == 1 { return ifx y > 0 then cast(s32)terrain[at - 20] else -1 }
-    if direction == 2 { return ifx x < 19 then cast(s32)terrain[at + 1] else -1 }
-    return ifx y < 11 then cast(s32)terrain[at + 20] else -1
+    if direction == 1 { return ifx y > 0 then cast(s32)terrain[at - 12] else -1 }
+    if direction == 2 { return ifx x < 11 then cast(s32)terrain[at + 1] else -1 }
+    return ifx y < 19 then cast(s32)terrain[at + 12] else -1
 }
 
 // The sides of at that meet water (sand) or leave the meadow (meadow):
@@ -64,8 +64,8 @@ CoastTile :: (terrain: []u8, at: s32) -> s32 {
 
 // Re-tiles at and its four neighbours after at changed.
 CoastAround :: (terrain: []u8, at: s32) {
-    cells: [5]s32 = .[at, ifx at % 20 > 0 then at - 1 else -1, ifx at >= 20 then at - 20 else -1,
-    ifx at % 20 < 19 then at + 1 else -1, ifx at < 220 then at + 20 else -1]
+    cells: [5]s32 = .[at, ifx at % 12 > 0 then at - 1 else -1, ifx at >= 12 then at - 12 else -1,
+    ifx at % 12 < 11 then at + 1 else -1, ifx at < 228 then at + 12 else -1]
     for cell: cells {
         if cell >= 0 { terrain[cell] = cast(u8)CoastTile(terrain, cell) }
     }

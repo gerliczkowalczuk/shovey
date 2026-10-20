@@ -181,7 +181,7 @@ IslandLevels :: (width: float32, top: float32, bottom: float32) {
     columns: s32 = ifx width >= 440.0 then 2 else 1
     gap: float32 = 12.0
     cell_width := (width - 32.0 - gap * cast(float32)(columns - 1)) / cast(float32)columns
-    cell_height := cell_width * 0.6 + 64.0
+    cell_height := cell_width * 5.0 / 3.0 + 64.0
     rows := (IslandLevelCount() + columns - 1) / columns
     scroll := Scroll(island_frame.session, ScrollProps.{.key = cast(u64)81003,
             .bounds = Rectangle.{16.0, top + 72.0, width - 32.0, bottom - top - 88.0},
@@ -199,7 +199,7 @@ IslandLevels :: (width: float32, top: float32, bottom: float32) {
             key := cast(u64)(90000 + number * 5000)
             if unlocked {
                 IslandImage(key + cast(u64)1, TextUntilNul(island_previews[number][:]),
-                    Rectangle.{cell.x + 6.0, cell.y + 6.0, cell.width - 12.0, (cell.width - 12.0) * 0.6}, IslandLevelName(number))
+                    Rectangle.{cell.x + 6.0, cell.y + 6.0, cell.width - 12.0, (cell.width - 12.0) * 5.0 / 3.0}, IslandLevelName(number))
             }
             digits: [24]u8
             label := FormatInteger(cast(s64)number, digits[:])

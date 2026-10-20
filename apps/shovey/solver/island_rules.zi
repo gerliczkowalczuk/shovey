@@ -236,17 +236,18 @@ SolveIslandEstimate :: () -> s32 {
         if open { solve_island_targets[target_count] = at; target_count += 1 }
         if open || (terrain == 47 && object != 111) || (terrain == 48 && object != 112) ||
         object == 73 || object == 65 || (object >= 101 && object <= 105) ||
-        object == 97 || object == 98 || object == 114 || IslandPickup(object) {
+        object == 97 || object == 98 || object == 114 || object == 122 || IslandPickup(object) {
             solve_island_goals[goal_count] = at; goal_count += 1
         }
         if IslandPickup(object) { estimate += 8 }
-        if object == 75 && at + ISLAND_WIDTH < ISLAND_CELLS { solve_island_homes[home_count] = at + ISLAND_WIDTH; home_count += 1 }
+        if object == 75 && at % ISLAND_WIDTH > 0 { solve_island_homes[home_count] = at - 1; home_count += 1 }
     }
     for index: cast(s32)0..target_count - 1 {
         at := solve_island_targets[index]
         kind: s32 = ifx game.terrain[at] == 25 then 3 else game.terrain[at] - 26
         estimate += SolveIslandNearest(at, solve_island_pieces[kind][0:piece_count[kind]])
     }
+    if game.string_active && goal_count > 0 { solve_island_work += cast(s64)(20 + goal_count / 8); return SolveIslandNearest(game.player, solve_island_goals[0:goal_count]) }
     if goal_count > 0 { estimate += SolveIslandNearest(game.player, solve_island_goals[0:goal_count]) }
     else { estimate += SolveIslandNearest(game.player, solve_island_homes[0:home_count]) }
     solve_island_work += cast(s64)(20 + goal_count / 8)
