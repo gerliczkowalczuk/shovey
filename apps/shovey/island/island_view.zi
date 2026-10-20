@@ -143,10 +143,14 @@ IslandHeading :: () -> string {
     return TextUntilNul(island_heading[:])
 }
 
+// The solved-level count last reported to the leaderboard.
+island_reported_levels: s32 = -1;
+
 IslandRemember :: (advance: bool = true) {
     IslandRecordWin(*island_progress, *island_game)
     if advance { unused IslandContinue(*island_progress, *island_game) }
     island_save_failed = !SaveAppRecordHost("campaign", IslandCampaignSave(*island_progress, *island_game))
+    ReportSolvedLevels(island_progress.completed[:], *island_reported_levels)
 }
 
 IslandOpenLevel :: (level: s32) {
@@ -243,6 +247,7 @@ IslandFrame :: (language: string) {
             island_progress = IslandProgressNew()
         }
         if IslandOpenLatest(*island_progress, *island_game) { IslandRemember(false) }
+        ReportSolvedLevels(island_progress.completed[:], *island_reported_levels)
         island_loaded = true
     }
     width := cast(float32)island_frame.width
