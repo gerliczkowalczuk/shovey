@@ -10,12 +10,14 @@
 #import "std/c_string"
 #import "std/text_buffer"
 #import, file "island_engine.zi";
+#import, file "../orientation.zi";
 
 // Pictures by number: tiles 0 to 124 by terrain or object kind, then Shovey
 // facing up, right, down and left.
 ISLAND_TILES :: 125
 ISLAND_PICTURES :: 129
 island_picture_files: [ISLAND_PICTURES]string;
+island_landscape_files: [ISLAND_PICTURES]string;
 island_pictures_ready: bool;
 island_layers: [ISLAND_CELLS * 3]s32;
 
@@ -25,6 +27,10 @@ IslandPicturesPrepare :: () {
         if number < ISLAND_TILES { BuilderPrint(*bytes, "assets/shovey-island/tiles/%.png", number) }
         else { BuilderPrint(*bytes, "assets/shovey-island/player/%.png", number - ISLAND_TILES + 1) }
         island_picture_files[number] = BuilderFinish(bytes)
+        turned: Vec(u8)
+        if number < ISLAND_TILES { BuilderPrint(*turned, "assets/shovey-island-landscape/tiles/%.png", number) }
+        else { BuilderPrint(*turned, "assets/shovey-island-landscape/player/%.png", number - ISLAND_TILES + 1) }
+        island_landscape_files[number] = BuilderFinish(turned)
     }
     island_pictures_ready = true
 }
@@ -45,34 +51,38 @@ IslandPlayerPicture :: (game: *IslandGame) -> s32 {
 // Uses keys from `key` to key + 1000 + ISLAND_CELLS.
 IslandBoard :: (session: Session, game: *IslandGame, bounds: Rectangle, key: u64, names: []string) -> TileMapResult {
     if !island_pictures_ready { IslandPicturesPrepare() }
+    landscape := BoardLandscape(bounds.width, bounds.height)
+    columns := cast(s32)(ifx landscape then ISLAND_HEIGHT else ISLAND_WIDTH)
+    rows := cast(s32)(ifx landscape then ISLAND_WIDTH else ISLAND_HEIGHT)
     for at: cast(s32)0..ISLAND_CELLS - 1 {
         terrain := game.terrain[at]
         object := game.objects[at]
-        island_layers[at] = ifx terrain >= 0 && terrain < ISLAND_TILES then terrain else -1
+        display := BoardDisplayIndex(at, landscape)
+        island_layers[display] = ifx terrain >= 0 && terrain < ISLAND_TILES then terrain else -1
         // The string's markers are drawn as dots below, not as pictures.
-        island_layers[ISLAND_CELLS + at] = ifx object > 0 && object < ISLAND_TILES && object != 79 && object != 123 then object else -1
-        island_layers[ISLAND_CELLS * 2 + at] = ifx at == game.player then IslandPlayerPicture(game) else -1
+        island_layers[ISLAND_CELLS + display] = ifx object > 0 && object < ISLAND_TILES && object != 79 && object != 123 then object else -1
+        island_layers[ISLAND_CELLS * 2 + display] = ifx at == game.player then IslandPlayerPicture(game) else -1
     }
     // Fractional cell sizes round neighbouring pictures to different pixel
     // rows and look separated. Give TileMap an integer cell once, here, so
     // every game and editor using this board gets touching tiles.
-    cell := bounds.width / cast(float32)ISLAND_WIDTH
-    height_cell := bounds.height / cast(float32)ISLAND_HEIGHT
+    cell := bounds.width / cast(float32)columns
+    height_cell := bounds.height / cast(float32)rows
     if height_cell < cell { cell = height_cell }
     if cell > 0.0 {
         cell = cast(float32)(cast(s32)cell)
-        bounds = Rectangle.{bounds.x + (bounds.width - cell * cast(float32)ISLAND_WIDTH) / 2.0,
-                bounds.y + (bounds.height - cell * cast(float32)ISLAND_HEIGHT) / 2.0,
-                cell * cast(float32)ISLAND_WIDTH, cell * cast(float32)ISLAND_HEIGHT}
+        bounds = Rectangle.{bounds.x + (bounds.width - cell * cast(float32)columns) / 2.0,
+                bounds.y + (bounds.height - cell * cast(float32)rows) / 2.0,
+                cell * cast(float32)columns, cell * cast(float32)rows}
     }
-    grid := TileMap(session, TileMapProps.{.key = key, .bounds = bounds, .columns = ISLAND_WIDTH, .rows = ISLAND_HEIGHT,
-            .tiles = island_picture_files[:], .names = names, .layers = island_layers[:], .layer_count = 3,
+    grid := TileMap(session, TileMapProps.{.key = key, .bounds = bounds, .columns = columns, .rows = rows,
+            .tiles = ifx landscape then island_landscape_files[:] else island_picture_files[:], .names = names, .layers = island_layers[:], .layer_count = 3,
             .fill = Color.{140, 198, 214, 255}, .label = "Shovey"})
     // The consumed start marker stays visible even before the first segment.
     if game.string_active {
         for at: cast(s32)0..ISLAND_CELLS - 1 {
             if game.objects[at] != 123 && game.objects[at] != 124 { continue }
-            cell := TileMapCell(grid, at)
+            cell := TileMapCell(grid, BoardDisplayIndex(at, landscape))
             unused Box(session, BoxProps.{.key = key + cast(u64)(1000 + at), .bounds = Rectangle.{cell.x + cell.width * 0.42,
                         cell.y + cell.width * 0.42, cell.width * 0.16, cell.width * 0.16}, .fill = Color.{118, 88, 64, 255},
                     .radius = cell.width * 0.08})

@@ -24,6 +24,7 @@
 #import "apps/node_types"
 #import "kryon/tile_map"
 #import "kryon/widget_palette"
+#import, file "../orientation.zi";
 #import, file "island_engine.zi";
 #import, file "island_board.zi";
 #import, file "progress.zi";
@@ -284,12 +285,13 @@ IslandFrame :: (language: string) {
     changed: bool
     before := island_game.direction
     keyed: s32 = -1
+    landscape := BoardLandscape(width, bottom - top)
     if key == 263 || key == 65 { keyed = 0 }
     if key == 265 || key == 87 { keyed = 1 }
     if key == 262 || key == 68 { keyed = 2 }
     if key == 264 || key == 83 { keyed = 3 }
     // A keyboard player does not need the on-screen stick until they touch.
-    if keyed >= 0 { island_joystick_hidden = true; changed = IslandAct(keyed) }
+    if keyed >= 0 { island_joystick_hidden = true; changed = IslandAct(BoardEngineDirection(keyed, landscape)) }
     if key == 82 { IslandOpenLevel(island_game.level) }
     if changed { IslandRemember(); changed = false; before = island_game.direction }
     // The island fills the space under the bar, in portrait or landscape.
@@ -326,9 +328,10 @@ IslandFrame :: (language: string) {
     if !joystick_allowed || ControlsSetting() == CONTROLS_OFF { island_joystick_hidden = true }
     if joystick_allowed && (ControlsSetting() == CONTROLS_ON || controls_touch) { island_joystick_hidden = false }
     if gesture.down && joystick_allowed { island_joystick_hidden = false }
-    step := gesture.swiped
+    step := BoardEngineDirection(gesture.swiped, landscape)
     if gesture.tapped {
         cell := TileMapCellAt(grid, gesture.x, gesture.y)
+        cell = BoardLogicalIndex(cell, landscape)
         if cell >= 0 {
             step = TouchDirection(cast(float32)(cell % ISLAND_WIDTH - island_game.player % ISLAND_WIDTH),
                 cast(float32)(cell / ISLAND_WIDTH - island_game.player / ISLAND_WIDTH), 1.0)
@@ -342,7 +345,7 @@ IslandFrame :: (language: string) {
         stick := Joystick(island_frame.session, JoystickProps.{.key = cast(u64)80020, .id = 80020,
                 .bounds = Rectangle.{14.0, bottom - size - 14.0, size, size}, .repeat_seconds = 0.16,
                 .label = IslandText("island_controls"), .now = island_frame.now})
-        if stick.step { step = stick.direction }
+        if stick.step { step = BoardEngineDirection(stick.direction, landscape) }
     }
     if step >= 0 { changed = IslandAct(step) || changed }
     if changed || before != island_game.direction { IslandRemember() }

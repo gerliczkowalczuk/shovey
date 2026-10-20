@@ -1,0 +1,641 @@
+{
+  "generator": "tools/levels/landscape.py",
+  "method": "Counterclockwise presentation copies of the portrait sprites; no outside image is used.",
+  "files": [
+    {
+      "path": "player/1.png",
+      "depicts": "landscape presentation of Shovey looking up",
+      "sha256": "4bb9caef6eb5adf960c271a9cbbc159fa9c51bfcec4f603480b3d6b721b331f0"
+    },
+    {
+      "path": "player/2.png",
+      "depicts": "landscape presentation of Shovey looking right",
+      "sha256": "5f875fabff87d044da9e3cced08be42f1620b54d2cdc43dcd17139654a83e38a"
+    },
+    {
+      "path": "player/3.png",
+      "depicts": "landscape presentation of Shovey looking down",
+      "sha256": "ab8e75adcefc775481535836570925f99d801edb1bbd27abbe913c40ee71c38c"
+    },
+    {
+      "path": "player/4.png",
+      "depicts": "landscape presentation of Shovey looking left",
+      "sha256": "fc916527eba02869fd37c993096e8a03e21941d044012861d49eb2f50d051369"
+    },
+    {
+      "path": "tiles/0.png",
+      "depicts": "landscape presentation of open water",
+      "sha256": "6118ba22968635daf243e9cb6b9c658e51d31c6aad3813c8d540710ebd5888d1"
+    },
+    {
+      "path": "tiles/1.png",
+      "depicts": "landscape presentation of sand",
+      "sha256": "35bef6eeedd243241d4886fcbca01f23b39f6f1837ee310fbeec4945e2a19022"
+    },
+    {
+      "path": "tiles/10.png",
+      "depicts": "landscape presentation of flower bed with jade flowers",
+      "sha256": "f13c6f504a099f2ffb50120c71117dd640b854d45c654cff15290ac88eaa2041"
+    },
+    {
+      "path": "tiles/100.png",
+      "depicts": "landscape presentation of shell changing colour",
+      "sha256": "0832ec4afc165fd179fc9089789bb58d750fece8b0fb90b353851cb4402b8eba"
+    },
+    {
+      "path": "tiles/101.png",
+      "depicts": "landscape presentation of numbered stone 1, number hidden (pushable)",
+      "sha256": "3d3bba4b053b63070bc474f50499e887a2e6a7316d597ecfa6d2209c61e740fd"
+    },
+    {
+      "path": "tiles/102.png",
+      "depicts": "landscape presentation of numbered stone 2, number hidden (pushable)",
+      "sha256": "3d3bba4b053b63070bc474f50499e887a2e6a7316d597ecfa6d2209c61e740fd"
+    },
+    {
+      "path": "tiles/103.png",
+      "depicts": "landscape presentation of numbered stone 3, number hidden (pushable)",
+      "sha256": "3d3bba4b053b63070bc474f50499e887a2e6a7316d597ecfa6d2209c61e740fd"
+    },
+    {
+      "path": "tiles/104.png",
+      "depicts": "landscape presentation of numbered stone 4, number hidden (pushable)",
+      "sha256": "3d3bba4b053b63070bc474f50499e887a2e6a7316d597ecfa6d2209c61e740fd"
+    },
+    {
+      "path": "tiles/105.png",
+      "depicts": "landscape presentation of numbered stone 5, number hidden (pushable)",
+      "sha256": "3d3bba4b053b63070bc474f50499e887a2e6a7316d597ecfa6d2209c61e740fd"
+    },
+    {
+      "path": "tiles/106.png",
+      "depicts": "landscape presentation of numbered stone showing 1",
+      "sha256": "05483a23e88a98d1b3cb3eb51b70c5ddc0e4ed3e78d00005eeeb872e0f6949a4"
+    },
+    {
+      "path": "tiles/107.png",
+      "depicts": "landscape presentation of numbered stone showing 2",
+      "sha256": "81ba5b2e0beab07d7c5e73c414e991c29260f4e41198b9a526e42703e13d6717"
+    },
+    {
+      "path": "tiles/108.png",
+      "depicts": "landscape presentation of numbered stone showing 3",
+      "sha256": "6913d0b53f8c35fd7fe8c1d2b4958940a8e33442de406125224d45f2591166c9"
+    },
+    {
+      "path": "tiles/109.png",
+      "depicts": "landscape presentation of numbered stone showing 4",
+      "sha256": "57f170e613cbd4746fb900711483ccb76c08212f221e76c74299ebc1d6e7cc17"
+    },
+    {
+      "path": "tiles/11.png",
+      "depicts": "landscape presentation of sand, shore along the bottom",
+      "sha256": "ce4e481fa7294e3c81a37d0204c1f001be8d7fe20d207614a1b884ef0084274d"
+    },
+    {
+      "path": "tiles/110.png",
+      "depicts": "landscape presentation of numbered stone showing 5",
+      "sha256": "b35380ea8e59607f10d1ad8289ff50eda0585c4ae3c80bd69eedee966a068714"
+    },
+    {
+      "path": "tiles/111.png",
+      "depicts": "landscape presentation of yellow flower (pushable)",
+      "sha256": "9f6db7ed919caf66eb33461ae86795318b841a163392747ba264c0cb324e633c"
+    },
+    {
+      "path": "tiles/112.png",
+      "depicts": "landscape presentation of red flower (pushable)",
+      "sha256": "aa1a0d565375105a526452f4e657a782efd2afc574b8810e312d7b6704b71fe8"
+    },
+    {
+      "path": "tiles/113.png",
+      "depicts": "landscape presentation of yellow shell turning",
+      "sha256": "e807d9e506d8c07b217a2177b9ea376fb68cee524cc31da5ef4b8ceea5bdd49b"
+    },
+    {
+      "path": "tiles/114.png",
+      "depicts": "landscape presentation of octopus",
+      "sha256": "673a8aba7fa275dc609e97b4c767b0529b87ba10925a44e465e6e4c455029d1a"
+    },
+    {
+      "path": "tiles/115.png",
+      "depicts": "landscape presentation of octopus resting",
+      "sha256": "5b53d0a08a863f446cb402ecad19216677dbe22c7badb2a0bcbd3a2316946dcb"
+    },
+    {
+      "path": "tiles/116.png",
+      "depicts": "landscape presentation of barrel (pushable)",
+      "sha256": "4adfe9bd5163ec3b6fcb0047f9d83182dead788f979aa8b5996ed8a80cb7184b"
+    },
+    {
+      "path": "tiles/117.png",
+      "depicts": "landscape presentation of leaf turner pointing up",
+      "sha256": "2374d61a5eff49d71ded7b676657d05144ca7b63535c6b07ed7ea6561836d34f"
+    },
+    {
+      "path": "tiles/118.png",
+      "depicts": "landscape presentation of leaf turner pointing right",
+      "sha256": "fe0c863eebeb49410840bf7ebd5dd871834d68382469c0461a62aa8e5c4b9705"
+    },
+    {
+      "path": "tiles/119.png",
+      "depicts": "landscape presentation of leaf turner pointing down",
+      "sha256": "2a8ffd163d619e40abf4753f2d6841c5c1c10c54a1ccf909407cbcb18be20bd1"
+    },
+    {
+      "path": "tiles/12.png",
+      "depicts": "landscape presentation of sand, shore along the left",
+      "sha256": "0de737255377f252edfea7599474736789abf8be3f21896ff632e5bdaa0b296e"
+    },
+    {
+      "path": "tiles/120.png",
+      "depicts": "landscape presentation of leaf turner pointing left",
+      "sha256": "656856296c107499ce3bca9dd972e275013dc927502350d74a8291da8d176931"
+    },
+    {
+      "path": "tiles/121.png",
+      "depicts": "landscape presentation of leaf turner turning",
+      "sha256": "d0cd8dde52743e613d4de0e765e274cc234528dd6c25a8dd5665452c78f49177"
+    },
+    {
+      "path": "tiles/122.png",
+      "depicts": "landscape presentation of string post",
+      "sha256": "8575eb4e9988835c962c6034185e94a18550719d6f16167475d1abc928c7f60d"
+    },
+    {
+      "path": "tiles/123.png",
+      "depicts": "landscape presentation of string laid on the ground",
+      "sha256": "3738ed6edf45927d181299871e1be534fe090d9fdb79f9e740effe2747b0127e"
+    },
+    {
+      "path": "tiles/124.png",
+      "depicts": "landscape presentation of string tied over a flower",
+      "sha256": "e5c9b04acd9ce9c22122841debfa727fa2f2e93667c36ba0454445bc1dd6c375"
+    },
+    {
+      "path": "tiles/13.png",
+      "depicts": "landscape presentation of raised meadow",
+      "sha256": "b7fd63f7f8fa678b37741069954f0d519e94ca6f7885806ba4e97d27cbc9d416"
+    },
+    {
+      "path": "tiles/14.png",
+      "depicts": "landscape presentation of meadow, rounded top-left bank",
+      "sha256": "e3e29d8dcf907e26d9c3443329e8d80cacc7c0e99741392c65f425dd08575413"
+    },
+    {
+      "path": "tiles/15.png",
+      "depicts": "landscape presentation of meadow, rounded top-right bank",
+      "sha256": "388b3c2596831ae3a30f7fda28622f491cdcad2bfa7e3db54fe5a0c158266372"
+    },
+    {
+      "path": "tiles/16.png",
+      "depicts": "landscape presentation of meadow, rounded bottom-right bank",
+      "sha256": "a779381edf5a81c79a9156110b987206960e671b4072e8469f0e4ef0496ed7e6"
+    },
+    {
+      "path": "tiles/17.png",
+      "depicts": "landscape presentation of meadow, rounded bottom-left bank",
+      "sha256": "09f9bce9d9b24629187fe84e78f79f2a56abdc91e0abcc7ae7e3d9faf5cedbd5"
+    },
+    {
+      "path": "tiles/18.png",
+      "depicts": "landscape presentation of narrow meadow, banks above and below",
+      "sha256": "a01e5376c5180ddca497ce6c636d020e640e4259553bb10147b1263b91136c51"
+    },
+    {
+      "path": "tiles/19.png",
+      "depicts": "landscape presentation of narrow meadow, banks left and right",
+      "sha256": "de99073161b9bd1506e4ac751e43bba7ec1daca24b606c32153786b22f97f469"
+    },
+    {
+      "path": "tiles/2.png",
+      "depicts": "landscape presentation of sand, rounded top-left shore",
+      "sha256": "75e3c019b24ce661fdf0d2a02ed9b1710ab13dde6f3ea53ec55e09b9e6c42922"
+    },
+    {
+      "path": "tiles/20.png",
+      "depicts": "landscape presentation of meadow, bank along the top",
+      "sha256": "29965e0cf5567b0bc6e70a5fcd6f02368db7b65d19aeaf7e74cad63eb26dd0b7"
+    },
+    {
+      "path": "tiles/21.png",
+      "depicts": "landscape presentation of meadow, bank along the right",
+      "sha256": "ecf77f3ea6649acf3f4da5b41cee4bb22b5672501253e5687f1a142481ada290"
+    },
+    {
+      "path": "tiles/22.png",
+      "depicts": "landscape presentation of meadow, bank along the bottom",
+      "sha256": "13b1ac5fd9a6de3a0a1aaa2201188bc0b3ff8cfc325d6b3ba508049a258536a7"
+    },
+    {
+      "path": "tiles/23.png",
+      "depicts": "landscape presentation of meadow, bank along the left",
+      "sha256": "07bc073a2db56050459c228cd7c856b996f3ac57d8be6457e1f5cc75489d2d7b"
+    },
+    {
+      "path": "tiles/24.png",
+      "depicts": "landscape presentation of sand where something was filled in",
+      "sha256": "167f8b8378459fbf832078af342f1fc4e06e77f50a4ed419c7b17cddab5278b0"
+    },
+    {
+      "path": "tiles/25.png",
+      "depicts": "landscape presentation of barrel spot: a wooden ring in the sand",
+      "sha256": "878efec1dc08c188c25aea2c2e1ab33a9c91c7979c05123e4ef926b59a114168"
+    },
+    {
+      "path": "tiles/26.png",
+      "depicts": "landscape presentation of red statue spot",
+      "sha256": "8bafcee1bfc7939a669e4f388650d63b2ed7aebdfd4525625cea557089ce9f78"
+    },
+    {
+      "path": "tiles/27.png",
+      "depicts": "landscape presentation of blue statue spot",
+      "sha256": "b01e8cf4c6c3f42f0dad43ccc0d53ddddff37f8b25bd018f10945f72cd5be201"
+    },
+    {
+      "path": "tiles/28.png",
+      "depicts": "landscape presentation of green statue spot",
+      "sha256": "d112236d5a7a20103d0ccb238bfbdb66e116a1a0bf4465bb8b85f548aac5124a"
+    },
+    {
+      "path": "tiles/29.png",
+      "depicts": "landscape presentation of sunken crate: a wooden floor in the water",
+      "sha256": "72d1c7c53685e9db7504f7cb1a9f0ee30854110eecd547ed29902b984bc22afe"
+    },
+    {
+      "path": "tiles/3.png",
+      "depicts": "landscape presentation of sand, rounded top-right shore",
+      "sha256": "120dd44e92c0bebc1e49e0a3d23d681f51061bb8e60649c6ad6477653e0e178c"
+    },
+    {
+      "path": "tiles/30.png",
+      "depicts": "landscape presentation of spike plate: a stone plate with a spike mark",
+      "sha256": "5cc34fa54be98854d93710e423cc479088ff2d00daa1dfa18668198d46dcf8c8"
+    },
+    {
+      "path": "tiles/31.png",
+      "depicts": "landscape presentation of well: a little pool ringed with stones",
+      "sha256": "0251ea40d19344771c5560cd1dcb83770d2346af84d16d04050ef488bf45bf7e"
+    },
+    {
+      "path": "tiles/32.png",
+      "depicts": "landscape presentation of farm field: tilled soil",
+      "sha256": "b2b8bd11240eb6435491d228de916d58cc85af767c8180139175811f79502dce"
+    },
+    {
+      "path": "tiles/33.png",
+      "depicts": "landscape presentation of planted field: soil with a seed",
+      "sha256": "ed774952ca5940af6ac9757e8bdfb0ba1d95e9517d21a720fea5ffa3dba5416f"
+    },
+    {
+      "path": "tiles/34.png",
+      "depicts": "landscape presentation of lowered spikes: a plate with holes",
+      "sha256": "abf0253ef1c0aa9156aaeb4b1c56ee050d2a8c8e8e1c95d48ccca0ce737695f8"
+    },
+    {
+      "path": "tiles/35.png",
+      "depicts": "landscape presentation of flower bed with red flowers",
+      "sha256": "8f9482260b475a577db68efc64dd51647a5eb5dfe1bc9c8f666e01970b89f448"
+    },
+    {
+      "path": "tiles/36.png",
+      "depicts": "landscape presentation of blast spot: cracked stone",
+      "sha256": "3663e656d07429766c7c73f21fe9f7b7323eed4b557d823baff58392436c4193"
+    },
+    {
+      "path": "tiles/37.png",
+      "depicts": "landscape presentation of teleporter: jade rings",
+      "sha256": "5bd75ab4c43c81c70dc2877d16c0b4a90be43149d8b3597a4edd09ca5525aeec"
+    },
+    {
+      "path": "tiles/38.png",
+      "depicts": "landscape presentation of raft on the water",
+      "sha256": "5f99ce85c4c2584ec78fbe78af31581cfe3787c65b978233f4590d24a12133cf"
+    },
+    {
+      "path": "tiles/39.png",
+      "depicts": "landscape presentation of item teleporter: light orange rings",
+      "sha256": "3843a28c6b7689a37bca4bb98fc6ce5fc02e5f387375f8b441818beaf667a192"
+    },
+    {
+      "path": "tiles/4.png",
+      "depicts": "landscape presentation of sand, rounded bottom-right shore",
+      "sha256": "2737110dc586c1ca29c783bb2ef7726bf3f51c430ce0061a36a2dea3d92cf483"
+    },
+    {
+      "path": "tiles/40.png",
+      "depicts": "landscape presentation of thin ice on the water",
+      "sha256": "e8cc3b217924db2fd9ffdb1e1aad7d39d4ccddc2087031a081915101498aff75"
+    },
+    {
+      "path": "tiles/41.png",
+      "depicts": "landscape presentation of watch plate: a stone plate with an eye",
+      "sha256": "b4c9521ee802da1e67934de7cad149a4078579b231c39da8654cdbfc3c2979d3"
+    },
+    {
+      "path": "tiles/42.png",
+      "depicts": "landscape presentation of hidden path: looks like open water",
+      "sha256": "6118ba22968635daf243e9cb6b9c658e51d31c6aad3813c8d540710ebd5888d1"
+    },
+    {
+      "path": "tiles/43.png",
+      "depicts": "landscape presentation of revealed path: planks across the water",
+      "sha256": "1f8303c98a5471d9c3b363edc99d981081e85b5276a14a22f87f19dc9742c92d"
+    },
+    {
+      "path": "tiles/44.png",
+      "depicts": "landscape presentation of coconut channel",
+      "sha256": "6b26fa1c65c5cea1c002aafe7703dc434ad4227989227b403b95f1e66af3c077"
+    },
+    {
+      "path": "tiles/45.png",
+      "depicts": "landscape presentation of coconut channel end: a hole",
+      "sha256": "c786ec65e2916310ff28d3d9aaae1cbaf7063581cec1d6bd0e480adfdc473ec9"
+    },
+    {
+      "path": "tiles/46.png",
+      "depicts": "landscape presentation of pebbly sand beside a channel",
+      "sha256": "b23cbe59f3f9f60bf7720e59a52af8495e0f16dec12e93ab166124c3e142ad1d"
+    },
+    {
+      "path": "tiles/47.png",
+      "depicts": "landscape presentation of meadow with a yellow flower ring",
+      "sha256": "b16113ac4fa16277a71204c24602df594241ab44a16e189dd873773094d28470"
+    },
+    {
+      "path": "tiles/48.png",
+      "depicts": "landscape presentation of meadow with a red flower ring",
+      "sha256": "a7f8efd7c044c4c984dd37939b12216d976ee8b42c623ce18d11e5c8c8569ee3"
+    },
+    {
+      "path": "tiles/49.png",
+      "depicts": "landscape presentation of nothing",
+      "sha256": "06ab142c3bad172a564f50931dd667c07af918ed7298107b0c41f79cd761cc8f"
+    },
+    {
+      "path": "tiles/5.png",
+      "depicts": "landscape presentation of sand, rounded bottom-left shore",
+      "sha256": "7e722769e27a137e67247537c831efd32b46da9dfd9592e604d133c08d561097"
+    },
+    {
+      "path": "tiles/51.png",
+      "depicts": "landscape presentation of palm tree",
+      "sha256": "3572635960f187590dc9b68442202a6da55077ea02c1580554f4ab17c9f01d8f"
+    },
+    {
+      "path": "tiles/52.png",
+      "depicts": "landscape presentation of stone lantern, empty",
+      "sha256": "aa94c39b975a9225d14c57b44085bdc4e8d25fb0927dc893834d3c1bf5626b3c"
+    },
+    {
+      "path": "tiles/53.png",
+      "depicts": "landscape presentation of pink snail",
+      "sha256": "4ee105565027bdcec881d99c400b5967a4236443c995380ce5480365c53cab17"
+    },
+    {
+      "path": "tiles/54.png",
+      "depicts": "landscape presentation of boulder",
+      "sha256": "78a4b44685e4a7247ecc937f324a5c804859086c6e7fdcb86977ed0e5d1bb71a"
+    },
+    {
+      "path": "tiles/55.png",
+      "depicts": "landscape presentation of palm tree with coconuts",
+      "sha256": "b46f43d35771d9755d3e698e48d7e59a99fcff1b801876395cec702fd0d6af95"
+    },
+    {
+      "path": "tiles/56.png",
+      "depicts": "landscape presentation of Shovey",
+      "sha256": "c16e37dcf3fa85f49f0de5db1f02b23924f08471320c7aaf5c8f59ee19c0be56"
+    },
+    {
+      "path": "tiles/57.png",
+      "depicts": "landscape presentation of crate (pushable)",
+      "sha256": "fbfc908e34588e24a3db12bccb0b995396b4b62fafc3d94e5eee45f27e5cc33d"
+    },
+    {
+      "path": "tiles/58.png",
+      "depicts": "landscape presentation of treasure chest, closed",
+      "sha256": "58277a9560f9f71d9af971d8a7796173caaa3c5e1970ae8705d1161e9749a3a6"
+    },
+    {
+      "path": "tiles/59.png",
+      "depicts": "landscape presentation of treasure chest, open",
+      "sha256": "898ad30447e03dec9f888ddedf5960c0799f563917943e83d35bccfc66482a3d"
+    },
+    {
+      "path": "tiles/6.png",
+      "depicts": "landscape presentation of narrow sand bar, water above and below",
+      "sha256": "c46ec5b2d555c4fc62a6c91d1cacf68f874bf8573c92b165fe40b114b5b04b56"
+    },
+    {
+      "path": "tiles/60.png",
+      "depicts": "landscape presentation of key",
+      "sha256": "7ad0c9400d6ca63fd3bb436b92bf092bb11fd5fe2fb9eb63ca2f59a41168abd3"
+    },
+    {
+      "path": "tiles/61.png",
+      "depicts": "landscape presentation of red statue (pushable)",
+      "sha256": "9a5ca1079937a7d0c6fca69ed56e8f6d97d9b9827b48a1b87e2159ff0db4e368"
+    },
+    {
+      "path": "tiles/62.png",
+      "depicts": "landscape presentation of blue statue (pushable)",
+      "sha256": "755a8c49840322f56b9c19c7bfb09ec2a10bf89184b586993ee972c45427af71"
+    },
+    {
+      "path": "tiles/63.png",
+      "depicts": "landscape presentation of green statue (pushable)",
+      "sha256": "80101a146b22e0c2a4dab105bc0271851dae23477497236471897b328ea3dbcf"
+    },
+    {
+      "path": "tiles/64.png",
+      "depicts": "landscape presentation of seed",
+      "sha256": "2bbdda5910a8c530f8d2aa4a86867f31ed25cf8f70f583438faebf247350e2ea"
+    },
+    {
+      "path": "tiles/65.png",
+      "depicts": "landscape presentation of sea star",
+      "sha256": "329d8f862feef559a9c33b02d79aa6b42f13a0b7d1308ea878c016e6650ce5f9"
+    },
+    {
+      "path": "tiles/66.png",
+      "depicts": "landscape presentation of baby crab",
+      "sha256": "2229018d7d68c4c761e0108f26ff0640b3411aa8a19054669a22db391d4190a4"
+    },
+    {
+      "path": "tiles/67.png",
+      "depicts": "landscape presentation of empty bottle (pushable)",
+      "sha256": "6a31bb6f35ea2a2fe22b3fb4bf842fc28d739c6a281acad8fb404ba0c22659a6"
+    },
+    {
+      "path": "tiles/68.png",
+      "depicts": "landscape presentation of bottle of water (pushable)",
+      "sha256": "3bf7d1c18978c8a5bc0c578855429f714f38d6cfd8b6bbec7f458676d0bdd1a8"
+    },
+    {
+      "path": "tiles/69.png",
+      "depicts": "landscape presentation of grey statue, waiting for its group",
+      "sha256": "5fde825ea2fe08f3652b1cf3c936755e3f1be414cdbe079dc3bcc24f2caecffc"
+    },
+    {
+      "path": "tiles/7.png",
+      "depicts": "landscape presentation of narrow sand bar, water left and right",
+      "sha256": "28f13b06438b4695caf69c0ae6c5024d9e5d08ba6c001a0c4a8a9fc858547ee8"
+    },
+    {
+      "path": "tiles/70.png",
+      "depicts": "landscape presentation of coconut",
+      "sha256": "75a10be9527e13435dd9951b801f7474905c98cb08cebb1edd30920d0a1fe0cc"
+    },
+    {
+      "path": "tiles/71.png",
+      "depicts": "landscape presentation of coconut hole",
+      "sha256": "a1b299b3346b9964522219718d95adf60e47d3aced90a265df2ed2e25ba28171"
+    },
+    {
+      "path": "tiles/72.png",
+      "depicts": "landscape presentation of bomb (pushable)",
+      "sha256": "8feac3d656d1f5d552e32b08528501eece1f30f98a5cd04d0bd8f56dc621891d"
+    },
+    {
+      "path": "tiles/73.png",
+      "depicts": "landscape presentation of mother crab",
+      "sha256": "f9004f7729c48f8f6c447bf7bc00589e8c1afb48e2147966be6d359e6123244b"
+    },
+    {
+      "path": "tiles/74.png",
+      "depicts": "landscape presentation of mother crab, happy",
+      "sha256": "01bfb599771ee228394f1e1c8f42ef0201108344050d15bfaf495d4bb21d3b2f"
+    },
+    {
+      "path": "tiles/75.png",
+      "depicts": "landscape presentation of home: a round hut with a lit door",
+      "sha256": "7185daa2bc220f419a71ed3013cc6a284415937e51d2a22125b35c03ca930c6f"
+    },
+    {
+      "path": "tiles/76.png",
+      "depicts": "landscape presentation of spring flower",
+      "sha256": "88b860aea18085bb2b0f2e8577283bbbf0e16e839fd0b3bc3da5bb543a9c9a1f"
+    },
+    {
+      "path": "tiles/77.png",
+      "depicts": "landscape presentation of spring flower, pressed",
+      "sha256": "3f476a313336fe50cb97a035f48ad8d1a8e75784925dc4e2f1d47ff290bcaa6b"
+    },
+    {
+      "path": "tiles/78.png",
+      "depicts": "landscape presentation of puff of smoke",
+      "sha256": "2984f660da5963163af538f0a7ffb7bad5de121b3362c12fed3ab5242637d445"
+    },
+    {
+      "path": "tiles/8.png",
+      "depicts": "landscape presentation of sand, shore along the top",
+      "sha256": "0cbf40e8d76bebf8187a6d269cd1af86f302e08d9d98eb4b62303f6186aea95a"
+    },
+    {
+      "path": "tiles/80.png",
+      "depicts": "landscape presentation of ammunition: a few round stones",
+      "sha256": "213ec65ace880767bd3be872f870bcc0914cf0fb59d22bfb92e18c938f3f6739"
+    },
+    {
+      "path": "tiles/81.png",
+      "depicts": "landscape presentation of pearl",
+      "sha256": "f13b1b298ec712736bc3c1d496579b011036e016f307ee97c1c3a37005277a96"
+    },
+    {
+      "path": "tiles/82.png",
+      "depicts": "landscape presentation of coin",
+      "sha256": "281e7d896b48154e90b7d318c4e1404285b0dc61c3dd5e70e293bf4ae968543b"
+    },
+    {
+      "path": "tiles/83.png",
+      "depicts": "landscape presentation of slingshot",
+      "sha256": "210cec76369b2d1ffdccba2fc1c32805869f569042b163263ba44990a47e4dea"
+    },
+    {
+      "path": "tiles/84.png",
+      "depicts": "landscape presentation of slingshot, loaded",
+      "sha256": "87f787041cfe9fb6e14557db81c03376e38dd9bf3fbcb1b5abc836fb9802127c"
+    },
+    {
+      "path": "tiles/85.png",
+      "depicts": "landscape presentation of leaf pointing up (pushable)",
+      "sha256": "c9db850c913df81ce86e65cbdbff69d7cc2bb7371cca22c1f652859241d50c06"
+    },
+    {
+      "path": "tiles/86.png",
+      "depicts": "landscape presentation of leaf pointing right (pushable)",
+      "sha256": "33cfed6a3b68a66413e16538ce267962a657d4858973d0741013dc65be2ad097"
+    },
+    {
+      "path": "tiles/87.png",
+      "depicts": "landscape presentation of leaf pointing down (pushable)",
+      "sha256": "0b97f9e5b806c6c403f05556570036154efd9eefe5aba2c68ee2668c72018028"
+    },
+    {
+      "path": "tiles/88.png",
+      "depicts": "landscape presentation of leaf pointing left (pushable)",
+      "sha256": "de1da4680d8491bfcd166d342a9dcb8ef02201f36a3e8f9d2ada82acb14415eb"
+    },
+    {
+      "path": "tiles/89.png",
+      "depicts": "landscape presentation of raised spikes",
+      "sha256": "d6486a90a6b1c129a5b60550e848a0757380f6fb161e7a026c0766f71c27555e"
+    },
+    {
+      "path": "tiles/9.png",
+      "depicts": "landscape presentation of sand, shore along the right",
+      "sha256": "2bb466aa5c170736e793e89e7d9af53bde823c86900cb557c5456386bec1afe2"
+    },
+    {
+      "path": "tiles/90.png",
+      "depicts": "landscape presentation of pirate",
+      "sha256": "27cd2fd6513adcb7fdb29697cfc7b624303f4e8db9d5eb68e5512284a9d52329"
+    },
+    {
+      "path": "tiles/91.png",
+      "depicts": "landscape presentation of buoy",
+      "sha256": "63456604ebb9d769d48e1bfaf192c58917fab44edfdf8b15b816e6fd0f02bee3"
+    },
+    {
+      "path": "tiles/92.png",
+      "depicts": "landscape presentation of pirate stall",
+      "sha256": "0e2530897cc99ec129ee9d46059b26fec63db058f0b9f6999ca892e8c1698900"
+    },
+    {
+      "path": "tiles/93.png",
+      "depicts": "landscape presentation of stone lantern with a glowing pearl",
+      "sha256": "85179576946b7ffa85fd25c9c69e68538db411786942fd193c1c1e0a1d5cab22"
+    },
+    {
+      "path": "tiles/94.png",
+      "depicts": "landscape presentation of clam, closed (pushable)",
+      "sha256": "77f893a9f01b773cd15a0caf6c108c9b66a03fb8f625d0c291e793bc61014290"
+    },
+    {
+      "path": "tiles/95.png",
+      "depicts": "landscape presentation of clam, open with a pearl",
+      "sha256": "d793d4b362e38951556e3766da2f41ccd9031f36c23a078aba140c83b60b9598"
+    },
+    {
+      "path": "tiles/96.png",
+      "depicts": "landscape presentation of clam, open and empty",
+      "sha256": "a61923f6b355bd0982b83881712428856c79613290f5113e75eb4fe0220b2620"
+    },
+    {
+      "path": "tiles/97.png",
+      "depicts": "landscape presentation of grumpy red shell (pushable)",
+      "sha256": "41105b05d55a233160819ac776a59a8ab192302df49638e77eb84f26d69ad4c2"
+    },
+    {
+      "path": "tiles/98.png",
+      "depicts": "landscape presentation of sleepy blue shell (pushable)",
+      "sha256": "4b487d2be69f06020be22580c074a2237a398fb71d5ea3d887b18a6a3c0b2456"
+    },
+    {
+      "path": "tiles/99.png",
+      "depicts": "landscape presentation of happy yellow shell (pushable)",
+      "sha256": "74f3ca5e35f3069ef674b8f6dde7b20b6cf24599e851b1cdb3079dd1139891b8"
+    }
+  ]
+}
