@@ -1,6 +1,6 @@
-// Shovey Island: sandy islands in clear shallow water, raised meadows and
-// the things Shovey meets there. Terrain tiles are height fields seen from
-// above; their shorelines sit at fixed insets so any neighbours join.
+// Shovey Island: sandy islands in clear water, meadows and the things
+// Shovey meets there. Terrain tiles are flat 2D paintings seen from above;
+// their shorelines sit at fixed insets so any neighbours join.
 import { THREE, C, mat, box, sphere, cylinder, torus, lathe, slab, polygon, circleShape,
     roundedRectShape, starShape, group, at, turned, scaled, periodicNoise, blend, rng } from './kit.js';
 import { classicPlayer as shovey } from './shovey.js';
@@ -9,9 +9,8 @@ import { classicPlayer as shovey } from './shovey.js';
 
 const SHORE = 0.14;
 const MEADOW = 0.1;
+// Inlays sit a little above the flat painting so their layers stay apart.
 const SAND_TOP = 0.035;
-const BED = -0.07;
-const MEADOW_TOP = 0.11;
 
 const sandNoise = periodicNoise(10, 101);
 const sandFine = periodicNoise(64, 102);
@@ -57,81 +56,63 @@ function grassColor(u, v) {
     return color;
 }
 
-function bedColor(depth) {
-    return blend('#c9bc94', '#3f7c8f', smooth(0.0, 0.07, depth));
+function waterColor(u, v) {
+    const ripple = waterNoise(u, v) * 0.6 + waterFine(u, v) * 0.4;
+    let color = blend('#82c6d6', '#74bbcd', ripple);
+    if (waterFine(u * 0.5 + 0.21, v * 0.5 + 0.4) > 0.9) {
+        color = blend('#7cc0d0', '#a8e2ea', 0.7);
+    }
+    return color;
 }
 
-// One tile of ground: `land(x, y)` gives {height, color}; water covers
-// anything below sea level.
-function terrain(land, { water = true } = {}) {
+// One flat tile of ground: `land(x, y)` gives the colour at that point.
+// Unlit basic material keeps the tile pure 2D, without shading or shadows.
+function terrain(land) {
     const geometry = new THREE.PlaneGeometry(1, 1, 192, 192);
     geometry.rotateX(-Math.PI / 2);
     const position = geometry.attributes.position;
     const colors = new Float32Array(position.count * 3);
     for (let i = 0; i < position.count; i += 1) {
         const x = position.getX(i), y = position.getZ(i);
-        const { height, color } = land(x, y, x + 0.5, y + 0.5);
-        position.setY(i, height);
+        const color = land(x, y, x + 0.5, y + 0.5);
+        position.setY(i, 0);
         colors[i * 3] = color[0] / 255; colors[i * 3 + 1] = color[1] / 255; colors[i * 3 + 2] = color[2] / 255;
     }
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    geometry.computeVertexNormals();
-    const ground = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95 }));
+    const ground = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ vertexColors: true }));
     ground.userData.castShadow = false;
-    const parts = [ground];
-    if (water) parts.push(sea(land));
-    return group(parts);
+    ground.userData.receiveShadow = false;
+    return ground;
 }
 
-// Translucent water with light ripples and foam where it meets the shore.
-function sea(land) {
-    const geometry = new THREE.PlaneGeometry(1, 1, 128, 128);
-    geometry.rotateX(-Math.PI / 2);
-    const position = geometry.attributes.position;
-    const colors = new Float32Array(position.count * 3);
-    for (let i = 0; i < position.count; i += 1) {
-        const x = position.getX(i), y = position.getZ(i);
-        const u = x + 0.5, v = y + 0.5;
-        const ripple = waterNoise(u, v) * 0.6 + waterFine(u, v) * 0.4;
-        let color = blend('#8ccbd8', '#6db3c6', ripple);
-        if (waterFine(u * 0.5 + 0.21, v * 0.5 + 0.4) > 0.8) color = blend('#7cc0d0', '#cdeef3', 0.5);
-        const height = land(x, y, u, v).height;
-        const foam = smooth(-0.03, -0.005, height) * (1 - smooth(-0.004, 0.0, height));
-        color = color.map((value, c) => value + ([238, 247, 245][c] - value) * foam * 0.85);
-        colors[i * 3] = color[0] / 255; colors[i * 3 + 1] = color[1] / 255; colors[i * 3 + 2] = color[2] / 255;
-    }
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    const surface = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ vertexColors: true,
-        roughness: 0.55, transparent: true, opacity: 0.72 }));
-    surface.userData.castShadow = false;
-    surface.userData.receiveShadow = false;
-    return surface;
-}
-
-// Sand rising out of the water, with damp sand at the waterline.
+// Water, one foam outline, a damp band and flat sand.
 function beach(sides) {
     return (x, y, u, v) => {
         const d = sides === null ? -1 : inside(sides, SHORE, x, y);
-        const height = BED + (SAND_TOP - BED) * smooth(-0.13, 0.04, d);
-        const wet = 1 - smooth(0.0, 0.07, d);
-        const color = height < 0 ? bedColor(-height) : sandColor(u, v, wet);
-        return { height, color };
+        if (d < -0.022) return waterColor(u, v);
+        if (d < 0) {
+            const foam = smooth(-0.022, -0.006, d);
+            return waterColor(u, v).map((value, c) => value + ([238, 247, 245][c] - value) * foam);
+        }
+        if (d < 0.05) return sandColor(u, v, 1);
+        return sandColor(u, v, 0);
     };
 }
 
-// A raised meadow on dry sand, with an earthy bank around it.
+// Water, foam, sand, an earthy bank outline and flat grass.
 function meadow(sides) {
     return (x, y, u, v) => {
         const d = inside(sides, MEADOW, x, y);
-        const rise = smooth(-0.06, 0.005, d);
-        const height = SAND_TOP + (MEADOW_TOP - SAND_TOP) * rise;
-        let color;
-        if (d > 0.004) color = grassColor(u, v);
-        else if (d > -0.06) color = blend('#b89470', '#9c7a58', smooth(-0.06, 0.0, d));
-        else color = sandColor(u, v, 0);
-        // A soft lip of lighter grass along the edge of the meadow.
-        if (d > 0.004 && d < 0.03) color = color.map((value, i) => value + ([168, 210, 150][i] - value) * 0.35);
-        return { height, color };
+        if (d < -0.022) return waterColor(u, v);
+        if (d < 0) {
+            const foam = smooth(-0.022, -0.006, d);
+            return waterColor(u, v).map((value, c) => value + ([238, 247, 245][c] - value) * foam);
+        }
+        if (d < 0.052) return sandColor(u, v, d < 0.032 ? 1 : 0);
+        if (d < 0.075) return blend('#b89470', '#9c7a58', smooth(0.052, 0.075, d));
+        let color = grassColor(u, v);
+        if (d < 0.104) color = color.map((value, c) => value + ([168, 210, 150][c] - value) * 0.3);
+        return color;
     };
 }
 
@@ -274,16 +255,16 @@ function raft() {
 }
 
 function sunkenCrate() {
-    const crate = at(box(0.8, 0.12, 0.8, 0.04, mat(C.wood)), 0, -0.035, 0);
+    const crate = at(box(0.8, 0.12, 0.8, 0.04, mat(C.wood)), 0, 0.06, 0);
     const parts = [crate];
-    for (let i = 0; i < 4; i += 1) parts.push(at(box(0.76, 0.02, 0.03, 0.01, mat(C.bark)), 0, 0.026, -0.27 + i * 0.18));
+    for (let i = 0; i < 4; i += 1) parts.push(at(box(0.76, 0.02, 0.03, 0.01, mat(C.bark)), 0, 0.125, -0.27 + i * 0.18));
     return group(parts);
 }
 
 function iceFloe() {
     const shape = polygon([[-0.38, -0.3], [-0.1, -0.4], [0.3, -0.36], [0.4, -0.05], [0.34, 0.33], [0.02, 0.4], [-0.36, 0.3], [-0.42, 0.02]]);
     const floe = slab(shape, 0.02, mat('#e8f4f6', { rough: 0.4 }), 0.02);
-    floe.position.y = -0.01;
+    floe.position.y = 0.01;
     floe.userData.castShadow = false;
     const crack = slab(polygon([[-0.2, -0.25], [0.02, 0.0], [0.24, 0.2], [0.22, 0.23], [0.0, 0.04], [-0.23, -0.23]]), 0.004, mat('#a9cdd6'), 0.003);
     crack.position.y = 0.045;
@@ -302,7 +283,7 @@ function bridge() {
 
 // A shallow packed-sand bed that coconuts roll along.
 function channel(x, y, u, v) {
-    return { height: SAND_TOP - 0.025, color: sandColor(u, v, 0.55).map(c => c * 0.93) };
+    return sandColor(u, v, 0.55).map(c => c * 0.93);
 }
 
 function channelHole() {
@@ -330,8 +311,8 @@ function filledHole() {
 
 function flowerTarget(tone) {
     return () => {
-        const ring = inlay(circleShape(0, 0, 0.3), tone, MEADOW_TOP - SAND_TOP, 0.004);
-        const hollow = inlay(circleShape(0, 0, 0.22), '#6aa874', MEADOW_TOP - SAND_TOP + 0.004, 0.004);
+        const ring = inlay(circleShape(0, 0, 0.3), tone, 0.004, 0.004);
+        const hollow = inlay(circleShape(0, 0, 0.22), '#6aa874', 0.008, 0.004);
         return group(ring, hollow);
     };
 }
