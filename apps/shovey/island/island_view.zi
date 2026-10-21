@@ -287,10 +287,13 @@ IslandFrame :: (language: string) {
         }
         return
     }
+    // The island fills the space under the bar, in portrait or landscape.
+    status_y := top + 52.0
+    area := Rectangle.{8.0, status_y + 52.0, width - 16.0, bottom - status_y - 60.0}
+    landscape := BoardLandscape(area.width, area.height)
     changed: bool
     before := island_game.direction
     keyed: s32 = -1
-    landscape := BoardLandscape(width, bottom - top)
     if key == 263 || key == 65 { keyed = 0 }
     if key == 265 || key == 87 { keyed = 1 }
     if key == 262 || key == 68 { keyed = 2 }
@@ -299,9 +302,6 @@ IslandFrame :: (language: string) {
     if keyed >= 0 { island_joystick_hidden = true; changed = IslandAct(BoardEngineDirection(keyed, landscape)) }
     if key == 82 { IslandOpenLevel(island_game.level) }
     if changed { IslandRemember(); changed = false; before = island_game.direction }
-    // The island fills the space under the bar, in portrait or landscape.
-    status_y := top + 52.0
-    area := Rectangle.{8.0, status_y + 52.0, width - 16.0, bottom - status_y - 60.0}
     IslandNames()
     grid := IslandBoard(island_frame.session, *island_game, area, cast(u64)85000, island_names[:])
     status := IslandLevelName(island_game.level)
