@@ -57,9 +57,10 @@ IslandPlayerPicture :: (game: *IslandGame) -> s32 {
 
 // Draws the island fitted in bounds. `names` describes each picture number.
 // Uses keys from `key` to key + 1000 + ISLAND_CELLS.
-IslandBoard :: (session: Session, game: *IslandGame, bounds: Rectangle, key: u64, names: []string) -> TileMapResult {
+IslandBoard :: (session: Session, game: *IslandGame, bounds: Rectangle, key: u64, names: []string,
+        landscape_only: bool = false) -> TileMapResult {
     if !island_pictures_ready { IslandPicturesPrepare() }
-    landscape := BoardLandscape(bounds.width, bounds.height)
+    landscape := ifx landscape_only then true else BoardLandscape(bounds.width, bounds.height)
     columns := cast(s32)(ifx landscape then ISLAND_HEIGHT else ISLAND_WIDTH)
     rows := cast(s32)(ifx landscape then ISLAND_WIDTH else ISLAND_HEIGHT)
     for at: cast(s32)0..ISLAND_CELLS - 1 {
