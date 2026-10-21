@@ -15,7 +15,7 @@
 //   732       1 while a string is active, plus 2 when won
 // Level and the spike, plate and water-switch cells are fixed by the board.
 // Facing direction and the move counter are cosmetic and stay out.
-#import, file "../../apps/shovey/island/island_engine.zi";
+#import, file "../../src/island/island_engine.zi";
 
 ISLAND_STATE_SIZE :: 733
 ISLAND_COUNTERS :: 721
@@ -125,6 +125,10 @@ IslandApiLost :: () -> s32 { return 0 }
 
 #program_export
 IslandApiRemaining :: () -> s32 { return IslandRemaining(*island_game) }
+
+// The goal chain counts the same goals the game does on this edition.
+#program_export
+IslandApiProgress :: () -> s32 { return IslandRemaining(*island_game) }
 
 // Byte offset of Shovey's cell in the state vector; this engine keeps no
 // behavior-relevant facing. A move that changes no other byte is a free walk,

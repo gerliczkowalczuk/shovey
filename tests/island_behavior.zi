@@ -1,6 +1,6 @@
-#import, file "../apps/shovey/island/island_engine.zi";
-#import, file "../apps/shovey/island/progress.zi";
-#import, file "../apps/shovey/island_levels.zi";
+#import, file "../src/island/island_engine.zi";
+#import, file "../src/island/progress.zi";
+#import, file "../src/island_levels.zi";
 
 OpenChecks :: () -> s32 {
     progress := IslandProgressNew()
