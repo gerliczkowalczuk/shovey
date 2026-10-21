@@ -142,3 +142,12 @@ Shovey Island est encore en cours de finition. Il reviendra quand chaque île se
 
 [island_coming_button]
 Bientôt disponible
+
+[island_select_game]
+Choisir un jeu
+
+[island_mute]
+Couper le son
+
+[island_unmute]
+Activer le son

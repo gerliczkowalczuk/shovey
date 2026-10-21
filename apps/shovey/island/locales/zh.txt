@@ -142,3 +142,12 @@ Shovey Island 仍在精心打磨。每座岛屿都完美后就会回来。
 
 [island_coming_button]
 即将推出
+
+[island_select_game]
+选择游戏
+
+[island_mute]
+静音
+
+[island_unmute]
+取消静音

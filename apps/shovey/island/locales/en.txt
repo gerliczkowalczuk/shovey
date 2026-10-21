@@ -142,3 +142,12 @@ Shovey Island is still being polished. It will return when every island is perfe
 
 [island_coming_button]
 Coming soon
+
+[island_select_game]
+Select game
+
+[island_mute]
+Mute
+
+[island_unmute]
+Unmute

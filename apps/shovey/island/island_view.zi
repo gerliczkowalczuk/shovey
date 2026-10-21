@@ -52,6 +52,7 @@ island_joystick_hidden: bool = true;
 island_save_failed: bool;
 island_language: string;
 island_previews: [176][96]u8;
+island_preview_landscape: bool;
 island_names: [ISLAND_PICTURES]string;
 island_heading: [512]u8;
 island_instructions: [16384]u8;
@@ -99,13 +100,16 @@ IslandControl :: (id: s32, bounds: Rectangle, label: string, disabled: bool = fa
             .emphasis = ButtonEmphasis.ButtonEmphasisSoft}) != 0
 }
 
-IslandSpritePaths :: () {
+IslandSpritePaths :: (landscape: bool) {
+    if island_preview_landscape == landscape && island_previews[1][0] != 0 { return }
     for number: cast(s32)1..175 {
         bytes: Vec(u8)
-        BuilderPrint(*bytes, "assets/shovey-island/levels/%.png", number)
+        if landscape { BuilderPrint(*bytes, "assets/shovey-island/levels-landscape/%.png", number) }
+        else { BuilderPrint(*bytes, "assets/shovey-island/levels/%.png", number) }
         unused CopyCString(TextView(VecSlice(bytes, 0, bytes.count)), island_previews[number][:])
         VecFree(bytes)
     }
+    island_preview_landscape = landscape
 }
 
 IslandTileText :: (kind: s32) -> string {
@@ -165,7 +169,7 @@ IslandAct :: (direction: s32) -> bool {
     changed := IslandMove(*island_game, direction)
     event := ISLAND_EVENT_NONE
     if changed { event = IslandEvent(*before, *island_game) }
-    if event != ISLAND_EVENT_NONE {
+    if event != ISLAND_EVENT_NONE && !SoundMuted() {
         sounds: [9]string = .["", "assets/shovey-island/sounds/push.wav", "assets/shovey-island/sounds/splash.wav",
         "assets/shovey-island/sounds/goal.wav", "assets/shovey-island/sounds/pickup.wav", "assets/shovey-island/sounds/gate.wav",
         "assets/shovey-island/sounds/teleport.wav", "assets/shovey-island/sounds/shot.wav", "assets/shovey-island/sounds/won.wav"]
@@ -181,12 +185,15 @@ IslandContinueGame :: () {
 }
 
 IslandLevels :: (width: float32, top: float32, bottom: float32) {
+    landscape := BoardLandscape(width, bottom - top)
+    IslandSpritePaths(landscape)
     IslandCaption(81001, Rectangle.{16.0, top + 12.0, width - 156.0, 44.0}, IslandText("island_levels"), 24)
     if IslandControl(81002, Rectangle.{width - 132.0, top + 12.0, 116.0, 44.0}, IslandText("island_continue")) { IslandContinueGame(); return }
     columns: s32 = ifx width >= 440.0 then 2 else 1
     gap: float32 = 12.0
     cell_width := (width - 32.0 - gap * cast(float32)(columns - 1)) / cast(float32)columns
-    cell_height := cell_width * 5.0 / 3.0 + 64.0
+    preview_height := cell_width * ifx landscape then 3.0 / 5.0 else 5.0 / 3.0
+    cell_height := preview_height + 64.0
     rows := (IslandLevelCount() + columns - 1) / columns
     scroll := Scroll(island_frame.session, ScrollProps.{.key = cast(u64)81003,
             .bounds = Rectangle.{16.0, top + 72.0, width - 32.0, bottom - top - 88.0},
@@ -204,7 +211,8 @@ IslandLevels :: (width: float32, top: float32, bottom: float32) {
             key := cast(u64)(90000 + number * 5000)
             if unlocked {
                 IslandImage(key + cast(u64)1, TextUntilNul(island_previews[number][:]),
-                    Rectangle.{cell.x + 6.0, cell.y + 6.0, cell.width - 12.0, (cell.width - 12.0) * 5.0 / 3.0}, IslandLevelName(number))
+                    Rectangle.{cell.x + 6.0, cell.y + 6.0, cell.width - 12.0,
+                        (cell.width - 12.0) * ifx landscape then 3.0 / 5.0 else 5.0 / 3.0}, IslandLevelName(number))
             }
             digits: [24]u8
             label := FormatInteger(cast(s64)number, digits[:])
@@ -241,7 +249,6 @@ IslandFrame :: (language: string) {
     island_frame = ReadAppUiHost()
     island_language = language
     if !island_loaded {
-        IslandSpritePaths()
         if !IslandCampaignRestore(*island_progress, *island_game, AppRecordHost("campaign")) {
             unused IslandLoad(*island_game, 1)
             island_progress = IslandProgressNew()
@@ -259,20 +266,27 @@ IslandFrame :: (language: string) {
     key := AppKeyHost()
     if key == 72 { island_help = !island_help }
     if key == 256 { island_help = false }
-    // A compact bar: the island takes the rest of the screen.
-    // A compact bar of three icons, so the level's name keeps the width it
-    // needs on a phone.
-    if IslandControl(80005, Rectangle.{8.0, top + 4.0, 44.0, 44.0}, IslandText("island_levels"), false, "", ICON_LEVELS) {
+    // Return sits at the edge, then the island's own navigation and status.
+    if IslandControl(80018, Rectangle.{8.0, top + 4.0, 44.0, 44.0}, IslandText("island_select_game"), false, "", ICON_GAMES) {
+        LeaveForGameSelection()
+        return
+    }
+    if IslandControl(80005, Rectangle.{56.0, top + 4.0, 44.0, 44.0}, IslandText("island_levels"), false, "", ICON_LEVELS) {
         island_selector = true
         return
     }
-    IslandCaption(80004, Rectangle.{60.0, top + 4.0, width - 172.0, 44.0}, IslandHeading(), 18, true)
-    if IslandControl(80015, Rectangle.{width - 104.0, top + 4.0, 44.0, 44.0}, IslandText("island_restart"), false, "", ICON_RESTART) {
+    IslandCaption(80004, Rectangle.{108.0, top + 4.0, width - 220.0, 44.0}, IslandHeading(), 14, true)
+    if IslandControl(80015, Rectangle.{width - 156.0, top + 4.0, 44.0, 44.0}, IslandText("island_restart"), false, "", ICON_RESTART) {
         IslandOpenLevel(island_game.level)
     }
-    if IslandControl(80006, Rectangle.{width - 52.0, top + 4.0, 44.0, 44.0}, IslandText("island_help"), false, "",
+    if IslandControl(80006, Rectangle.{width - 104.0, top + 4.0, 44.0, 44.0}, IslandText("island_help"), false, "",
             ifx island_help then ICON_CLOSE else ICON_HELP) {
         island_help = !island_help
+    }
+    if IslandControl(80019, Rectangle.{width - 52.0, top + 4.0, 44.0, 44.0},
+            IslandText(ifx SoundMuted() then "island_unmute" else "island_mute"), false, "",
+            ifx SoundMuted() then ICON_SOUND_OFF else ICON_SOUND_ON) {
+        SoundSetMuted(!SoundMuted())
     }
     if island_help {
         scroll := Scroll(island_frame.session, ScrollProps.{.key = cast(u64)80008,

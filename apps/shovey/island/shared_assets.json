@@ -1,0 +1,7 @@
+{
+  "about": "A bundle may hold only its own assets/<name>/ folder. Rotated Island art is generated beside it and copied into the hosted bundle here.",
+  "copies": [
+    {"from": "assets/shovey-island-landscape/tiles", "to": "tiles-landscape"},
+    {"from": "assets/shovey-island-landscape/player", "to": "player-landscape"}
+  ]
+}

@@ -142,3 +142,12 @@
 
 [island_coming_button]
 Скоро
+
+[island_select_game]
+Выбрать игру
+
+[island_mute]
+Выключить звук
+
+[island_unmute]
+Включить звук

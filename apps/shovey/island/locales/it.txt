@@ -142,3 +142,12 @@ Stiamo ancora rifinendo Shovey Island. Tornerà quando ogni isola sarà perfetta
 
 [island_coming_button]
 In arrivo
+
+[island_select_game]
+Scegli gioco
+
+[island_mute]
+Silenzia
+
+[island_unmute]
+Riattiva audio

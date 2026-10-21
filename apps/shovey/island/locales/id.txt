@@ -142,3 +142,12 @@ Shovey Island masih kami sempurnakan. Kembali saat setiap pulau sudah sempurna.
 
 [island_coming_button]
 Segera hadir
+
+[island_select_game]
+Pilih game
+
+[island_mute]
+Bisukan
+
+[island_unmute]
+Nyalakan suara

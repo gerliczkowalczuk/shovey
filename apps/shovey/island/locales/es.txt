@@ -142,3 +142,12 @@ Seguimos puliendo Shovey Island. Volverá cuando cada isla sea perfecta.
 
 [island_coming_button]
 Próximamente
+
+[island_select_game]
+Elegir juego
+
+[island_mute]
+Silenciar
+
+[island_unmute]
+Activar sonido

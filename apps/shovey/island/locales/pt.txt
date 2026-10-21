@@ -142,3 +142,12 @@ Ainda estamos a lapidar Shovey Island. Ele volta quando todas as ilhas estiverem
 
 [island_coming_button]
 Em breve
+
+[island_select_game]
+Escolher jogo
+
+[island_mute]
+Silenciar
+
+[island_unmute]
+Ativar som

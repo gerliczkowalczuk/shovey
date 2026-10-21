@@ -142,3 +142,12 @@ Shovey Island을 계속 다듬고 있어요. 모든 섬이 완벽해지면 돌�
 
 [island_coming_button]
 곧 공개
+
+[island_select_game]
+게임 선택
+
+[island_mute]
+음소거
+
+[island_unmute]
+소리 켜기

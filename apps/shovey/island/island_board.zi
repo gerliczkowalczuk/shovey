@@ -21,6 +21,14 @@ island_landscape_files: [ISLAND_PICTURES]string;
 island_pictures_ready: bool;
 island_layers: [ISLAND_CELLS * 3]s32;
 
+#if #defined(KRYON_HOSTED_UI) {
+    ISLAND_LANDSCAPE_TILES :: "assets/shovey-island/tiles-landscape"
+    ISLAND_LANDSCAPE_PLAYER :: "assets/shovey-island/player-landscape"
+} else {
+    ISLAND_LANDSCAPE_TILES :: "assets/shovey-island-landscape/tiles"
+    ISLAND_LANDSCAPE_PLAYER :: "assets/shovey-island-landscape/player"
+}
+
 IslandPicturesPrepare :: () {
     for number: cast(s32)0..ISLAND_PICTURES - 1 {
         bytes: Vec(u8)
@@ -28,8 +36,8 @@ IslandPicturesPrepare :: () {
         else { BuilderPrint(*bytes, "assets/shovey-island/player/%.png", number - ISLAND_TILES + 1) }
         island_picture_files[number] = BuilderFinish(bytes)
         turned: Vec(u8)
-        if number < ISLAND_TILES { BuilderPrint(*turned, "assets/shovey-island-landscape/tiles/%.png", number) }
-        else { BuilderPrint(*turned, "assets/shovey-island-landscape/player/%.png", number - ISLAND_TILES + 1) }
+        if number < ISLAND_TILES { BuilderPrint(*turned, "%/%.png", ISLAND_LANDSCAPE_TILES, number) }
+        else { BuilderPrint(*turned, "%/%.png", ISLAND_LANDSCAPE_PLAYER, number - ISLAND_TILES + 1) }
         island_landscape_files[number] = BuilderFinish(turned)
     }
     island_pictures_ready = true
