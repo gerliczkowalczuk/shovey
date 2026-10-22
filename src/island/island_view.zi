@@ -1,6 +1,7 @@
 // The independent Island node draws its two layers with Image.
 // It shares no live state or records with the Classic leaf.
 #import "kryon/session"
+#import "kryon/joystick"
 #import "kryon/geometry"
 #import "kryon/drawing_props"
 #import "kryon/text_props"
