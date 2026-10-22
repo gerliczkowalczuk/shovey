@@ -15,5 +15,5 @@
   "assets": "assets/shovey-island",
   "locales": "src/island/locales",
   "locale_prefix": "island_",
-  "preview": "assets/shovey-island/preview.png"
+  "preview": "assets/shovey-island/levels-landscape/1.png"
 }

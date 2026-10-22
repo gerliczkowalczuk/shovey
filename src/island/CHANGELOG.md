@@ -1,5 +1,9 @@
 # Shovey Island changelog
 
+## [0.4.6] - 2026-10-22
+
+- Show the flat Island board in the game preview.
+
 ## [0.4.5] - 2026-10-20
 
 - Friends can compare how many levels you have solved on Inner Breeze's Leaderboard.
