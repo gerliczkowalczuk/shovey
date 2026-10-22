@@ -317,7 +317,7 @@ IslandFrame :: (language: string) {
     if key == 82 { IslandOpenLevel(island_game.level) }
     if changed { IslandRemember(); changed = false; before = island_game.direction }
     IslandNames()
-    grid := IslandBoard(island_frame.session, *island_game, area, cast(u64)85000, island_names[:])
+    grid := IslandBoard(island_frame.session, *island_game, area, cast(u64)85000, island_names[:], landscape)
     status := IslandLevelName(island_game.level)
     status_icon := ""
     if island_game.won {
