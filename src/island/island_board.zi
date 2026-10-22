@@ -59,7 +59,7 @@ IslandPlayerPicture :: (game: *IslandGame) -> s32 {
 // The caller chooses the same orientation used for its input mapping.
 // Uses keys from `key` to key + 1000 + ISLAND_CELLS.
 IslandBoard :: (session: Session, game: *IslandGame, bounds: Rectangle, key: u64, names: []string,
-        landscape: bool) -> TileMapResult {
+    landscape: bool) -> TileMapResult {
     if !island_pictures_ready { IslandPicturesPrepare() }
     columns := cast(s32)(ifx landscape then ISLAND_HEIGHT else ISLAND_WIDTH)
     rows := cast(s32)(ifx landscape then ISLAND_WIDTH else ISLAND_HEIGHT)
@@ -72,21 +72,9 @@ IslandBoard :: (session: Session, game: *IslandGame, bounds: Rectangle, key: u64
         island_layers[ISLAND_CELLS + display] = ifx object > 0 && object < ISLAND_TILES && object != 79 && object != 123 then object else -1
         island_layers[ISLAND_CELLS * 2 + display] = ifx at == game.player then IslandPlayerPicture(game) else -1
     }
-    // Fractional cell sizes round neighbouring pictures to different pixel
-    // rows and look separated. Give TileMap an integer cell once, here, so
-    // every game and editor using this board gets touching tiles.
-    cell := bounds.width / cast(float32)columns
-    height_cell := bounds.height / cast(float32)rows
-    if height_cell < cell { cell = height_cell }
-    if cell > 0.0 {
-        cell = cast(float32)(cast(s32)cell)
-        bounds = Rectangle.{bounds.x + (bounds.width - cell * cast(float32)columns) / 2.0,
-                bounds.y + (bounds.height - cell * cast(float32)rows) / 2.0,
-                cell * cast(float32)columns, cell * cast(float32)rows}
-    }
     grid := TileMap(session, TileMapProps.{.key = key, .bounds = bounds, .columns = columns, .rows = rows,
             .tiles = ifx landscape then island_landscape_files[:] else island_picture_files[:], .names = names, .layers = island_layers[:], .layer_count = 3,
-            .fill = Color.{140, 198, 214, 255}, .label = "Shovey"})
+            .fill = Color.{140, 198, 214, 255}, .label = "Shovey", .pixel_snap = true})
     // The consumed start marker stays visible even before the first segment.
     if game.string_active {
         for at: cast(s32)0..ISLAND_CELLS - 1 {
