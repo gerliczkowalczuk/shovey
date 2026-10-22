@@ -15,7 +15,6 @@
 #import "kryon/box_widget"
 #import "kryon/scroll_props"
 #import "kryon/scroll_widget"
-#import "kryon/joystick"
 #import "kryon/tree"
 #import "std/number_text"
 #import "std/c_string"
@@ -48,7 +47,6 @@ island_help: bool;
 island_scroll: s32;
 island_help_scroll: s32;
 // Hidden once a keyboard is used; shown again when the island is touched.
-island_joystick_hidden: bool = true;
 island_save_failed: bool;
 island_language: string;
 island_previews: [176][96]u8;
@@ -313,7 +311,7 @@ IslandFrame :: (language: string) {
     if key == 262 || key == 68 { keyed = 2 }
     if key == 264 || key == 83 { keyed = 3 }
     // A keyboard player does not need the on-screen stick until they touch.
-    if keyed >= 0 { island_joystick_hidden = true; changed = IslandAct(BoardEngineDirection(keyed, landscape)) }
+    if keyed >= 0 { changed = IslandAct(BoardEngineDirection(keyed, landscape)) }
     if key == 82 { IslandOpenLevel(island_game.level) }
     if changed { IslandRemember(); changed = false; before = island_game.direction }
     IslandNames()
@@ -339,15 +337,10 @@ IslandFrame :: (language: string) {
     if island_save_failed { IslandCaption(80016, Rectangle.{16.0, bottom - 28.0, width - 32.0, 24.0}, IslandText("island_save_failed"), 13, true) }
     disabled := island_game.won
     // Touch: swipe anywhere under the bar to step, or tap a cell to step
-    // towards it; hold either to keep walking. The stick comes after, so it
-    // stays on top.
+    // towards it; hold either to keep walking.
     play := Rectangle.{0.0, top + 52.0, width, bottom - top - 52.0}
     gesture := SwipeArea(island_frame.session, SwipeAreaProps.{.key = cast(u64)89000, .id = 89000, .bounds = play,
             .label = IslandText("island_controls"), .now = island_frame.now, .min_distance = grid.cell * 0.6, .repeat_seconds = 0.16, .disabled = disabled})
-    joystick_allowed := ControlsJoystickAllowed()
-    if !joystick_allowed || ControlsSetting() == CONTROLS_OFF { island_joystick_hidden = true }
-    if joystick_allowed && (ControlsSetting() == CONTROLS_ON || controls_touch) { island_joystick_hidden = false }
-    if gesture.down && joystick_allowed { island_joystick_hidden = false }
     step := BoardEngineDirection(gesture.swiped, landscape)
     if gesture.tapped || gesture.held {
         cell := TileMapCellAt(grid, gesture.x, gesture.y)
@@ -356,16 +349,6 @@ IslandFrame :: (language: string) {
             step = TouchDirection(cast(float32)(cell % ISLAND_WIDTH - island_game.player % ISLAND_WIDTH),
                 cast(float32)(cell / ISLAND_WIDTH - island_game.player / ISLAND_WIDTH), 1.0)
         }
-    }
-    if !island_joystick_hidden && !disabled {
-        size := ifx width < bottom - top then width else bottom - top
-        size *= 0.3
-        if size < 104.0 { size = 104.0 }
-        if size > 180.0 { size = 180.0 }
-        stick := Joystick(island_frame.session, JoystickProps.{.key = cast(u64)80020, .id = 80020,
-                .bounds = Rectangle.{14.0, bottom - size - 14.0, size, size}, .repeat_seconds = 0.16,
-                .label = IslandText("island_controls"), .now = island_frame.now})
-        if stick.step { step = BoardEngineDirection(stick.direction, landscape) }
     }
     if step >= 0 { changed = IslandAct(step) || changed }
     if changed || before != island_game.direction { IslandRemember() }
